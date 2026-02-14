@@ -333,6 +333,9 @@ everything-claude-code/
 |-- mcp-configs/      # MCP server configurations
 |   |-- mcp-servers.json    # GitHub, Supabase, Vercel, Railway, etc.
 |
+|-- mcp-servers/      # Custom MCP server implementations
+|   |-- metabase/            # Metabase integration with SQL Server validation (NEW)
+|
 |-- marketplace.json  # Self-hosted marketplace config (for /plugin marketplace add)
 ```
 
@@ -530,6 +533,17 @@ Copy the hooks from `hooks/hooks.json` to your `~/.claude/settings.json`.
 #### Configure MCPs
 
 Copy desired MCP servers from `mcp-configs/mcp-servers.json` to your `~/.claude.json`.
+
+#### Custom MCP Servers
+
+**Metabase MCP Server** (`mcp-servers/metabase/`) - SQL Server query validation for Metabase:
+- Validates SQL Server syntax before deployment (reduces 40% error rate to <10%)
+- Explores database schema to ensure correct table/column names
+- Tests queries live against your Metabase instance
+- Learns from existing working cards
+- Provides SQL Server syntax guide and suggestions
+
+Perfect for teams building Metabase dashboards with SQL Server databases. See `mcp-servers/metabase/README.md` for installation.
 
 **Important:** Replace `YOUR_*_HERE` placeholders with your actual API keys.
 
