@@ -131,9 +131,39 @@ cd everything-claude-code
 # ./install.sh --target cursor typescript
 ```
 
-For manual install instructions see the README in the `rules/` folder.
+### Step 3: Install Required Plugins
 
-### Step 3: Start Using
+> ⚠️ **Important:** This project requires specific plugins. Install them for full functionality:
+
+```bash
+# Core plugins (required)
+/plugin install Notion@claude-plugins-official
+/plugin install context7@claude-plugins-official
+/plugin install github@claude-plugins-official
+/plugin install supabase@claude-plugins-official
+
+# Recommended
+/plugin install frontend-design@claude-plugins-official
+
+# Restart Claude Code
+/exit
+```
+
+### Step 4: Set Up Environment
+
+```bash
+# Run automated setup
+node scripts/setup-team-environment.js
+
+# Configure personal settings
+cp .claude/settings.example.json .claude/settings.json
+# Edit .claude/settings.json to customize plugins
+
+# Verify environment
+node scripts/verify-environment.js
+```
+
+### Step 5: Start Using
 
 ```bash
 # Try a command
@@ -141,9 +171,12 @@ For manual install instructions see the README in the `rules/` folder.
 
 # Check available commands
 /plugin list everything-claude-code@everything-claude-code
+
+# Test Metabase integration
+"Show me the SQL Server syntax guide"
 ```
 
-✨ **That's it!** You now have access to 13 agents, 37 skills, and 31 commands.
+✨ **That's it!** You now have access to 15+ agents, 30+ skills, 30+ commands, and custom MCP servers.
 
 ---
 
