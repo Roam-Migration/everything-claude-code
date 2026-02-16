@@ -1,0 +1,32 @@
+{
+  "name": "@roam-migration/notion-cli",
+  "version": "0.1.0",
+  "description": "CLI tool for automating Notion task creation and management",
+  "main": "dist/index.js",
+  "bin": {
+    "notion-cli": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "keywords": ["notion", "cli", "automation", "tasks"],
+  "author": "Roam Migration Law",
+  "license": "MIT",
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "commander": "^12.0.0",
+    "inquirer": "^9.2.12",
+    "chalk": "^4.1.2",
+    "cosmiconfig": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@types/inquirer": "^9.0.7",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

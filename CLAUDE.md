@@ -52,6 +52,46 @@ See: `mcp-servers/metabase/README.md`
 
 ---
 
+## CLI Tools
+
+### Notion CLI (Custom)
+
+**Required for:** Automated Notion task creation during session closure
+
+**Location:** `~/.claude/tools/notion-cli/`
+
+**Setup:**
+```bash
+cd ~/.claude/tools/notion-cli
+npm install
+npm run build
+npm link  # Makes globally available as 'notion-cli'
+```
+
+**Usage:**
+```bash
+# Bulk create tasks from JSON
+notion-cli bulk-create session-tasks.json
+
+# Create single task
+notion-cli create-task --title "Task name" --effort 3 --priority "High"
+
+# Query your tasks
+notion-cli query-tasks --driver "me" --status "Not started,In progress"
+```
+
+**Tools provided:**
+- `init` - Initialize configuration
+- `create-task` - Create single task
+- `bulk-create` - Create multiple tasks from JSON
+- `query-tasks` - Query and filter tasks
+
+**Integration:** Automatically uses Notion plugin OAuth authentication. No additional token required.
+
+See: `docs/tools/notion-cli-integration.md`
+
+---
+
 ## Project Setup (New Team Members)
 
 ### 1. Clone Repository

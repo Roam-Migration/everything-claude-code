@@ -300,6 +300,37 @@ git diff HEAD~1 --name-only
 git show HEAD
 ```
 
+## Team Tools
+
+### Notion CLI
+
+**Purpose:** Automate Notion task creation during session closure
+
+**Location:** `~/.claude/tools/notion-cli/`
+
+**Installation:**
+```bash
+cd ~/.claude/tools/notion-cli
+npm install
+npm run build
+npm link  # Makes globally available
+```
+
+**Usage:**
+```bash
+# Bulk create tasks
+notion-cli bulk-create session-tasks.json
+
+# Query tasks
+notion-cli query-tasks --driver "me" --status "Not started"
+```
+
+**Documentation:** See `docs/tools/notion-cli-integration.md`
+
+**Status:** ✅ Committed to repository, team-wide tool
+
+---
+
 ## Updating This Guide
 
 This guide should be updated when:
