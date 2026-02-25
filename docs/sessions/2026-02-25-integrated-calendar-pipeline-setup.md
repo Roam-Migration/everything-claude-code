@@ -265,9 +265,17 @@ WHEN NOT MATCHED THEN
 ```
 
 ### Blocking Dependencies Before Build
-1. **Contractor leave GCal** — create the calendar and get its iCal URL
+1. ~~**Contractor leave GCal** — create the calendar and get its iCal URL~~ **DONE**
+   - Calendar ID: `c_780037334b62950858dce88ea7dbdd73803a28349bbb9a3d6a71cdc972a17837@group.calendar.google.com`
+   - iCal URL: `https://calendar.google.com/calendar/ical/c_780037334b62950858dce88ea7dbdd73803a28349bbb9a3d6a71cdc972a17837%40group.calendar.google.com/private-ede6aea6c1a62dc86b8752399fadc4e6/basic.ics`
    - Notion task: https://www.notion.so/312e1901e36e81d8b05ffbb5c69cd5e5
-2. **AU/MY public holidays GCal** — subscribe and get calendar iCal URLs
+2. ~~**AU/MY public holidays GCal** — subscribe and get calendar iCal URLs~~ **DONE**
+   - AU iCal: `https://calendar.google.com/calendar/ical/en.australian%23holiday%40group.v.calendar.google.com/public/basic.ics`
+   - MY iCal: `https://calendar.google.com/calendar/ical/en-gb.malaysia%23holiday%40group.v.calendar.google.com/public/basic.ics`
+   - AU filter: `DESCRIPTION` contains `Public holiday` AND (no state list OR description contains `Victoria`)
+   - MY filter: `DESCRIPTION` contains `Public holiday` AND `(regional holiday)` NOT in `SUMMARY`
+   - **Melbourne Cup Day NOT in AU feed** — keep manual seed for 2026-11-03
+   - **MY date corrections** the sync will apply: Wesak Day → May 31, Agong's Birthday → Jun 1, Maulidur Rasul → Aug 25, Muharram → Jun 17 (new)
    - Notion task: https://www.notion.so/312e1901e36e8130b0fdca4ce21555ba
 3. **staff_name_lookup verification** — 15 estimated entries need verification against EH profiles
 
