@@ -2,7 +2,7 @@
 
 **Platform:** Roaming Around (intranet.roammigrationlaw.com)
 **Stack:** React Router v7, Vite, Tailwind v4, Notion API, Metabase
-**Last Updated:** 2026-02-18
+**Last Updated:** 2026-02-26
 **Repo:** `/tmp/Rmlintranetdesign`
 
 ---
@@ -100,12 +100,12 @@ graph TD
 |---------|--------|-------------|-------|
 | Daily Priorities | **Functional** | Notion | Falls back to static config if Notion not configured |
 | Critical Updates | **Functional** | Notion | Same fallback pattern |
-| Daily Updates (leave/announcements) | **Partial** | Hardcoded | Fallback data is always shown; no live Notion source yet |
+| Daily Updates (leave/announcements) | **Functional** | Notion | Live Notion source connected; leave and announcements sync from Notion |
 | Role-Based Quick Actions | **Functional** | LocalStorage (role) | 5 role variants; all link to real URLs |
 | Quick Resources (Daily Ops) | **Functional** | Static config | External links: Actionstep, ImmiAccount, LegendCom |
 | Quick Resources (Resources) | **Functional** | Static config | External links: Google Drive, HR system |
 | Quick Resources (Support) | **Functional** | Static config | External links: IT helpdesk, EAP |
-| Team Calendar | **Stub** | — | Placeholder iframe; Google Calendar embed not connected |
+| Team Calendar | **Functional** | Google Calendar | Google Calendar embed connected |
 | Search | **Partial** | — | SearchModal exists; search logic not yet implemented |
 
 ---
@@ -293,10 +293,8 @@ Which sections are most relevant per role:
 
 | Missing Feature | Priority | Suggested Approach |
 |-----------------|----------|--------------------|
-| **Live Daily Updates** (leave/announcements) | High | Wire `DailyUpdatesCard` to Notion database (schema already exists) |
 | **Policies & Handbook** | High | Notion page embeds or PDF viewer for staff handbook, policies |
 | **Application Checklists** | High | Notion database or static PDFs; critical for legal-staff |
-| **Team Calendar** | Medium | Google Calendar iframe embed (OAuth or public calendar) |
 | **Full-Text Search** | Medium | Index content from Notion + navigation config; Algolia or built-in |
 | **SOPs (Legal Hub)** | High | PDF viewer or Notion page embeds for 482/186/BAL SOPs |
 
@@ -307,7 +305,6 @@ Which sections are most relevant per role:
 ### Phase 1 — Close the Reporting Loop (High ROI, mostly BI wiring)
 1. Wire Executive Dashboard signed URL → `/business-intelligence/executive`
 2. Wire Team Leader Dashboard signed URL → `/business-intelligence/team-leader`
-3. Connect `DailyUpdatesCard` to Notion (leave, announcements, business updates)
 
 ### Phase 2 — Legal Operations Core (legal-staff daily use)
 4. Legal Hub SOPs — embed Notion pages or PDF viewer per visa type
