@@ -1,0 +1,26 @@
+Risk,Impact,Likelihood,Mitigation,Owner,Status
+"Database schema changes break existing data",High,Medium,"Comprehensive migration testing, backup/restore procedures, rollback plan. Test migrations on staging first.",TBD,Open
+"Page builder performance issues with complex pages",Medium,Medium,"Implement lazy loading, virtualization, progressive rendering. Benchmark regularly. Set complexity limits.",TBD,Open
+"Staging/production sync failures",High,Low,"Automated testing of promotion workflow, clear rollback procedures, manual verification checklist.",TBD,Open
+"Security vulnerabilities in user-generated content",High,Medium,"Input sanitization, CSP headers, XSS prevention. Security audit before launch. Regular dependency updates.",TBD,Open
+"React DnD performance on large pages (100+ blocks)",Medium,Medium,"Virtualization, chunking, progressive loading. Test with large pages early. Set recommended limits.",TBD,Open
+"Users find page builder too complex",High,Medium,"User testing throughout development, onboarding tour, video tutorials. Start with 3-5 beta testers.",TBD,Open
+"Form builder lacks required field types",Medium,High,"Extensible architecture for quick field addition. Gather requirements early. Start with 10 common types.",TBD,Open
+"Migration from hardcoded pages too difficult",High,Low,"Create migration scripts, comprehensive documentation, migration support. Test with 2-3 pages first.",TBD,Open
+"Staging environment not used properly by team",Medium,High,"Enforce workflow through process, training. Make staging mandatory step. Clear guidelines.",TBD,Open
+"Development takes longer than 12 weeks",Medium,Medium,"Phased rollout, strict MVP scope control. Weekly progress reviews. Cut non-critical features if needed.",TBD,Open
+"Infrastructure costs increase significantly",Medium,Low,"Cost monitoring, budget alerts set at $100/month. Optimize queries and caching. Scale gradually.",TBD,Open
+"Competition from established CMS platforms",High,High,"Focus on niche (internal intranets), leverage unique integrations (Notion, Workspace). Not competing directly.",TBD,Open
+"User adoption is slow after launch",Medium,Medium,"Training sessions, documentation, onboarding tour. Identify champions. Regular check-ins.",TBD,Open
+"Technical debt accumulates during rapid development",Medium,High,"Code reviews, maintain test coverage, document decisions. Allocate 20% time for refactoring in Phase 6.",TBD,Open
+"Key team member becomes unavailable",High,Low,"Document everything in Notion, pair programming, knowledge sharing. Have backup person for critical areas.",TBD,Open
+"Third-party service outages (Supabase, GCP)",Medium,Low,"Monitor service status, have fallback plans. Use multiple availability zones. Cache aggressively.",TBD,Open
+"API rate limits hit (Notion API, Google APIs)",Low,Medium,"Implement caching, request throttling. Monitor usage. Have upgrade plan ready.",TBD,Open
+"Browser compatibility issues",Medium,Medium,"Test on all major browsers early. Use polyfills. Define minimum supported browser versions.",TBD,Open
+"Insufficient test coverage leads to bugs",High,Medium,"90% coverage requirement for critical paths. E2E tests for all workflows. Automated testing in CI/CD.",TBD,Open
+"Data loss due to bugs or user error",High,Low,"Version history, regular backups, point-in-time recovery. Test restore procedures. Soft delete.",TBD,Open
+"Scope creep adds features beyond MVP",Medium,High,"Strict MVP definition, change control process. Say no to non-critical features. Defer to v2.",TBD,Open
+"Poor documentation leads to support burden",Medium,High,"Allocate sufficient time for docs in Phase 6. User test documentation. Video tutorials.",TBD,Open
+"Performance degrades over time (data growth)",Medium,Medium,"Database query optimization, proper indexing. Monitor performance metrics. Regular maintenance.",TBD,Open
+"Deployment failures cause downtime",High,Low,"Blue-green deployment, health checks, automatic rollback. Test deployment process on staging multiple times.",TBD,Open
+"Supabase limits hit (storage, bandwidth)",Low,Low,"Monitor usage against plan limits. Have upgrade path. Consider self-hosting if needed.",TBD,Open
