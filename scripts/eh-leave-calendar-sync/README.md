@@ -87,6 +87,18 @@ Apps Script (runs Mon–Fri at 8 am, 12 pm, 5 pm under Aaron's account)
 
 **Updating contractors:** Add or remove rows in the Contractors tab. No script changes needed.
 
+**Multiple name formats for the same person:** If EH uses different starting words for the same
+person (e.g. `"ahmad"` vs `"iqmal"` for Ahmad Iqmal Ashraf Bin Sahrudin), add a second row with
+the alternative form as the leading name:
+
+```
+Ahmad Iqmal Ashraf Bin Sahrudin   ← matches "ahmad", "ahmad iqmal ashraf bin sahrudin"
+Iqmal Ashraf Bin Sahrudin         ← matches "iqmal", "iqmal ashraf bin sahrudin"
+```
+
+The duplicate guard prevents double-events for the same leave period as long as EH sends
+a consistent name format per submission.
+
 ---
 
 ## Log actions
