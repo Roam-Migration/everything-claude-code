@@ -420,6 +420,267 @@ function deleteTrigger() {
   console.log(`Removed ${triggers.length} trigger(s).`);
 }
 
+// ─── Bulk import from existing schedule spreadsheet ───────────────────────────
+//
+// Use this to backfill contractor leave events from a pre-existing schedule
+// Google Sheet (e.g. the one at the URL provided during setup).
+//
+// STEP 1: Run previewSheetHeaders() to confirm the column layout of your sheet.
+// STEP 2: Update BULK_CONFIG below to match your column positions.
+// STEP 3: Run bulkImportFromSheet() to create all contractor events on the GCal.
+//
+// The function is safe to re-run — the duplicate guard prevents double-entries.
+// Only runs for rows whose Name matches a contractor in the CONFIG roster sheet.
+
+const BULK_CONFIG = {
+
+  // Sheet ID of the existing schedule spreadsheet.
+  // Find it in the URL: docs.google.com/spreadsheets/d/<SHEET_ID>/edit
+  // The script runner (Aaron) must have at least read access to this sheet.
+  SCHEDULE_SHEET_ID: '1opOF2YbsY_qdwAF3ZQgqWiEHeJszTQU0ti3GElCb3-8',
+
+  // Name of the tab inside the schedule sheet that contains leave data.
+  SCHEDULE_TAB: 'Sheet1',
+
+  // Row number of the header row (data starts on HEADER_ROW + 1).
+  HEADER_ROW: 1,
+
+  // Column positions (1-indexed: A=1, B=2, C=3, …).
+  // Run previewSheetHeaders() first to confirm these.
+  COL_NAME:       1,  // Full name of the person on leave
+  COL_LEAVE_TYPE: 2,  // Leave type (e.g. "Annual Leave") — set to 0 to use default
+  COL_START:      3,  // Start date (first day of leave, inclusive)
+  COL_END:        4,  // End date (last day of leave, inclusive)
+
+  // Default leave type used when COL_LEAVE_TYPE is 0 or the cell is blank.
+  DEFAULT_LEAVE_TYPE: 'Leave',
+
+  // Set to true if your sheet's end date is already exclusive (day after last leave day).
+  // Set to false (default) if end date is inclusive (the last actual leave day).
+  END_DATE_IS_EXCLUSIVE: false,
+
+};
+
+/**
+ * Run this FIRST to print the column headers from your schedule sheet.
+ * Use the output to configure BULK_CONFIG column positions above.
+ */
+function previewSheetHeaders() {
+  const ss    = SpreadsheetApp.openById(BULK_CONFIG.SCHEDULE_SHEET_ID);
+  const sheet = ss.getSheetByName(BULK_CONFIG.SCHEDULE_TAB);
+
+  if (!sheet) {
+    // List available tabs if the configured one doesn't exist
+    const tabs = ss.getSheets().map(s => `"${s.getName()}"`).join(', ');
+    console.error(`Tab "${BULK_CONFIG.SCHEDULE_TAB}" not found. Available tabs: ${tabs}`);
+    return;
+  }
+
+  const lastCol = sheet.getLastColumn();
+  if (lastCol === 0) {
+    console.log('Sheet appears to be empty.');
+    return;
+  }
+
+  const headers   = sheet.getRange(BULK_CONFIG.HEADER_ROW, 1, 1, lastCol).getValues()[0];
+  const firstData = sheet.getLastRow() > BULK_CONFIG.HEADER_ROW
+    ? sheet.getRange(BULK_CONFIG.HEADER_ROW + 1, 1, 1, lastCol).getValues()[0]
+    : [];
+
+  console.log('─────────────────────────────────────────────────');
+  console.log(`Sheet: "${BULK_CONFIG.SCHEDULE_TAB}" — ${sheet.getLastRow() - BULK_CONFIG.HEADER_ROW} data row(s)`);
+  console.log('');
+  console.log('Col  Header               First data row value');
+  console.log('───  ───────────────────  ─────────────────────');
+
+  headers.forEach((h, i) => {
+    const col   = String(i + 1).padStart(3);
+    const name  = String(h).padEnd(20);
+    const value = String(firstData[i] ?? '').substring(0, 40);
+    console.log(`${col}  ${name} ${value}`);
+  });
+
+  console.log('─────────────────────────────────────────────────');
+  console.log('Update BULK_CONFIG column positions to match, then run bulkImportFromSheet().');
+}
+
+/**
+ * Bulk imports contractor leave events from the schedule spreadsheet.
+ *
+ * Only creates events for names that match the contractor roster in CONFIG.
+ * Employee rows are silently skipped (they sync automatically via the EH feed).
+ * Uses the same duplicate guard as the email-based sync — safe to re-run.
+ *
+ * Run previewSheetHeaders() first to confirm the BULK_CONFIG column positions.
+ */
+function bulkImportFromSheet() {
+  if (CONFIG.CONTRACTORS_SHEET_ID === 'REPLACE_WITH_YOUR_SHEET_ID') {
+    console.error('CONFIG.CONTRACTORS_SHEET_ID is not set. Run setupContractorSheet() first.');
+    return;
+  }
+
+  const cal = CalendarApp.getCalendarById(CONFIG.CONTRACTOR_CAL_ID);
+  if (!cal) {
+    console.error('Contractor calendar not found — check CONFIG.CONTRACTOR_CAL_ID.');
+    return;
+  }
+
+  const contractors = getContractorNames();
+  if (contractors.length === 0) {
+    console.error('Contractor roster is empty — add names to the Contractors tab first.');
+    return;
+  }
+
+  let ss, sheet;
+  try {
+    ss    = SpreadsheetApp.openById(BULK_CONFIG.SCHEDULE_SHEET_ID);
+    sheet = ss.getSheetByName(BULK_CONFIG.SCHEDULE_TAB);
+  } catch (err) {
+    console.error(`Cannot open schedule sheet: ${err.message}`);
+    console.error('Ensure Aaron has read access to the schedule spreadsheet, or run this under Jackson\'s account.');
+    return;
+  }
+
+  if (!sheet) {
+    const tabs = ss.getSheets().map(s => `"${s.getName()}"`).join(', ');
+    console.error(`Tab "${BULK_CONFIG.SCHEDULE_TAB}" not found. Available: ${tabs}`);
+    return;
+  }
+
+  const lastRow = sheet.getLastRow();
+  const dataStart = BULK_CONFIG.HEADER_ROW + 1;
+  if (lastRow < dataStart) {
+    console.log('No data rows found in schedule sheet.');
+    return;
+  }
+
+  const numRows = lastRow - BULK_CONFIG.HEADER_ROW;
+  const numCols = Math.max(
+    BULK_CONFIG.COL_NAME,
+    BULK_CONFIG.COL_LEAVE_TYPE || 0,
+    BULK_CONFIG.COL_START,
+    BULK_CONFIG.COL_END,
+  );
+  const data = sheet.getRange(dataStart, 1, numRows, numCols).getValues();
+
+  let created = 0;
+  let skipped = 0;
+  let notContractor = 0;
+  let errors = 0;
+
+  console.log(`Processing ${data.length} rows from "${BULK_CONFIG.SCHEDULE_TAB}"…`);
+
+  for (const row of data) {
+    const rawName = String(row[BULK_CONFIG.COL_NAME - 1] ?? '').trim();
+    if (!rawName) continue;  // blank row
+
+    // ── Match against contractor roster (same fuzzy logic as email sync) ────
+    const matchedName = findContractor(rawName, contractors);
+    if (!matchedName) {
+      notContractor++;
+      continue;  // employee or unrecognised — skip silently
+    }
+
+    // ── Parse dates ──────────────────────────────────────────────────────────
+    const startVal = row[BULK_CONFIG.COL_START - 1];
+    const endVal   = row[BULK_CONFIG.COL_END - 1];
+
+    const startDate = parseBulkDate(startVal);
+    const endDate   = parseBulkDate(endVal);
+
+    if (!startDate || !endDate) {
+      console.warn(`SKIP "${matchedName}": cannot parse dates (start="${startVal}", end="${endVal}")`);
+      logRow('ERROR', matchedName, '', '', `Bulk import: invalid dates start="${startVal}" end="${endVal}"`);
+      errors++;
+      continue;
+    }
+
+    // ── Leave type ───────────────────────────────────────────────────────────
+    const leaveType = BULK_CONFIG.COL_LEAVE_TYPE
+      ? String(row[BULK_CONFIG.COL_LEAVE_TYPE - 1] ?? '').trim() || BULK_CONFIG.DEFAULT_LEAVE_TYPE
+      : BULK_CONFIG.DEFAULT_LEAVE_TYPE;
+
+    // ── Duplicate guard ──────────────────────────────────────────────────────
+    // For the duplicate check, we need the exclusive end date.
+    // isDuplicate() searches up to endDate + 1 day, so pass the exclusive end.
+    const exclusiveEnd = BULK_CONFIG.END_DATE_IS_EXCLUSIVE
+      ? endDate
+      : new Date(endDate.getTime() + 86400000);
+
+    if (isDuplicate(cal, matchedName, startDate, exclusiveEnd)) {
+      console.log(`DUPLICATE: "${matchedName}" ${fmtDate(startDate)}–${fmtDate(endDate)}`);
+      logRow('DUPLICATE', matchedName, fmtDate(startDate), fmtDate(endDate), 'Bulk import — already on calendar');
+      skipped++;
+      continue;
+    }
+
+    // ── Create calendar event ─────────────────────────────────────────────────
+    const title = `${leaveType}: ${matchedName}`;
+    const isSingleDay = (exclusiveEnd.getTime() - startDate.getTime()) <= 86400000;
+
+    try {
+      if (isSingleDay) {
+        cal.createAllDayEvent(title, startDate);
+      } else {
+        cal.createAllDayEvent(title, startDate, exclusiveEnd);
+      }
+      console.log(`CREATED: "${title}" ${fmtDate(startDate)}–${fmtDate(endDate)}`);
+      logRow('CREATED', matchedName, fmtDate(startDate), fmtDate(endDate), `Bulk import: ${title}`);
+      created++;
+    } catch (err) {
+      console.error(`ERROR creating event for "${matchedName}": ${err.message}`);
+      logRow('ERROR', matchedName, fmtDate(startDate), fmtDate(endDate), `Bulk import: ${err.message}`);
+      errors++;
+    }
+  }
+
+  console.log('─────────────────────────────────────────────────');
+  console.log(`Bulk import complete:`);
+  console.log(`  ${created}        events created`);
+  console.log(`  ${skipped}        duplicates skipped`);
+  console.log(`  ${notContractor}  non-contractor rows skipped (employees)`);
+  console.log(`  ${errors}         errors (see Log tab for details)`);
+}
+
+/**
+ * Parse a date value from a spreadsheet cell.
+ * Handles: Date objects (Google Sheets native), DD/MM/YYYY, YYYY-MM-DD strings.
+ */
+function parseBulkDate(val) {
+  if (!val) return null;
+
+  // Google Sheets stores date cells as Date objects
+  if (val instanceof Date) {
+    return isNaN(val.getTime()) ? null : new Date(val.getFullYear(), val.getMonth(), val.getDate());
+  }
+
+  const str = String(val).trim();
+  if (!str) return null;
+
+  // DD/MM/YYYY (Australian format — most common in RML sheets)
+  const dmyMatch = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (dmyMatch) {
+    return new Date(parseInt(dmyMatch[3], 10), parseInt(dmyMatch[2], 10) - 1, parseInt(dmyMatch[1], 10));
+  }
+
+  // YYYY-MM-DD (ISO format)
+  const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (isoMatch) {
+    return new Date(parseInt(isoMatch[1], 10), parseInt(isoMatch[2], 10) - 1, parseInt(isoMatch[3], 10));
+  }
+
+  // D/MM/YY short year variant (e.g. 1/3/26)
+  const shortMatch = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
+  if (shortMatch) {
+    const year = 2000 + parseInt(shortMatch[3], 10);
+    return new Date(year, parseInt(shortMatch[2], 10) - 1, parseInt(shortMatch[1], 10));
+  }
+
+  // Last resort: native Date parsing
+  const d = new Date(str);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 /**
  * Test helper — run manually to process a single email by Gmail message ID.
  * Useful for verifying ICS parsing without waiting for the trigger.

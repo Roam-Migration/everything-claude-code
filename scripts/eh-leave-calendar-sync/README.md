@@ -101,6 +101,67 @@ a consistent name format per submission.
 
 ---
 
+## Bulk importing from an existing schedule spreadsheet
+
+If there are already contractor leave dates in a Google Sheet, use the one-time
+`bulkImportFromSheet()` function to backfill the GCal without processing emails.
+
+### Steps
+
+1. **Open the Apps Script project** (script.google.com — under the account that
+   has read access to the schedule sheet)
+
+2. **Check the sheet layout** — run `previewSheetHeaders()`. This prints every
+   column header and the first data row so you can confirm the column positions.
+
+3. **Configure `BULK_CONFIG`** in `Code.gs`:
+   ```js
+   const BULK_CONFIG = {
+     SCHEDULE_SHEET_ID: '1opOF2YbsY_qdwAF3ZQgqWiEHeJszTQU0ti3GElCb3-8',
+     SCHEDULE_TAB:      'Sheet1',  // update to the correct tab name
+     HEADER_ROW:        1,
+     COL_NAME:          1,         // column A = contractor name
+     COL_LEAVE_TYPE:    2,         // column B = leave type (0 to skip)
+     COL_START:         3,         // column C = start date
+     COL_END:           4,         // column D = end date (inclusive)
+     DEFAULT_LEAVE_TYPE: 'Leave',
+     END_DATE_IS_EXCLUSIVE: false, // true if end date is the day AFTER last leave day
+   };
+   ```
+
+4. **Run `bulkImportFromSheet()`** — creates events on the contractor GCal for
+   every row whose name fuzzy-matches the contractor roster. Employee rows are
+   silently skipped. Duplicate events are never created.
+
+5. **Check the Log tab** in the roster sheet for `CREATED`, `DUPLICATE`, and
+   `ERROR` rows confirming the import.
+
+**Note on end dates:** By default the script assumes the sheet records the last
+*actual* day of leave (inclusive) — e.g. "leave to Friday 6 Mar" is stored as
+`6/03/2026`. If your sheet already uses iCal-style exclusive end dates (the day
+*after* the last leave day), set `END_DATE_IS_EXCLUSIVE: true`.
+
+---
+
+## Fixing a blank embedded calendar
+
+The intranet embeds two Google Calendars side-by-side:
+- **EH Leave** — an iCal subscription calendar fed by Employment Hero
+- **Contractor Leave** — the GCal managed by this script
+
+For the embed to show events to all intranet users (who are not signed into
+Google Calendar), both calendars must be set to **public** visibility:
+
+1. Open Google Calendar (calendar.google.com)
+2. Find the calendar in the left sidebar → click the three dots → **Settings**
+3. Under "Access permissions for events" → tick **Make available to public**
+4. Choose **See all event details**
+5. Repeat for both the EH Leave and Contractor Leave calendars
+
+The embed will update within a few minutes of the permission change.
+
+---
+
 ## Log actions
 
 | Action | Meaning |
