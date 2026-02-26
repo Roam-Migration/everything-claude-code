@@ -1,0 +1,66 @@
+Phase 1:
+- Only dedicated Operations team members will create forms.
+- I anticipate 6 form types initially
+- Visual former builder is preferred however integration with Notioon, Google, and tech stack is priority. Potentially react-hook-form for a more extensible future build. This would battle test usecase for future Roam Portal development and Complize platform. 
+2. UAP
+- role based access highly desirable as this would allow us to custtomise forms for KPI reporting purposes
+- 100+
+- No all staff have default access 
+3. FC
+- Initial forms will require all major fields
+- Multipage and wizard forms would expand scope to ensure that we have extensible use case for more complex implementations (such as Fee Quote Calculator) 
+- save would be useful
+- rich text not essential
+4. Workflow
+- There will be multiple stakeholders (e.g. intranet submission may be IT Sys Admin, KPI submision routed to relevant line manager, etc.
+- KPI reports submission only
+- Approval workflow highly desirable, post approval would (i) generate ical event for relevant stakeholders (ii) sync with org wide leave calendar 
+- Notifications essential - for example where leave request rejected
+5. TS
+- Both
+- Ideally but not essential atm
+- No email preferable for most forms but relevant in other use cases
+Notifications
+- configurable based on status change
+- both configurable
+7. Strategy
+- Notion is acceptable
+- cutover unknown, will depend on success of current implementation and exec support for further development
+- That would be beneficial but not essential atm
+8. Definition
+- If we move to react-hook-form, Option B. If development overhead for react-hook-form to significant, Option C may be easiest (given notion limitations).
+9. 
+- Data and reporting would be outstanding but not currently essential
+- Yes, tracking leave allowance highly desirable. Can be notion only atm.
+- Export not essential
+10. UX
+- Wow, tough question. I can see value in multiple approaches but happy t osimplify to "filling out a form" initially
+- internal implementation has no mobile requirement. 
+11. - Proposed Changes Feeback: structured and open questions
+- User elects
+- 1-5 rating desirable
+KPI reports
+- KPI requirements are defined in Notion. These may vary by individual (e.g. calculation of billable rates will vary by staff member's remuneration)
+- primarily weekly
+- primarily qualitative, secondary narrative
+++ ideally managers will have a custom "card" on personalised intranet site showing KPIs for staff (have they submitted KPI reports, etc.). In future may integrate with Metabase data and other sources such as Xero for performance visibility.
+Leave requests
+- Yes
+- Yes
+- Yes
+Doc Change 
+- URL
+- Yes
+- Yes
+
+12. Timeline
+- KPI highest priority but known to be more complex. Intranet feedback as test case
+- budget and timeline tbc
+- implementation for MVP in weeks, supported by CC I am confident this can be achieved.
+13. 
+- High adoption rate is primary goal
+- reduced emails is always valuable but not the top priority atm
+- success means greater visibility of staff performance because KPI reporting will deliver visibility of key staff inputs and allow the business to be certain no one is "quiet quitting" or not contributing. It will provide managers with actionable insights into staff activity levels and project progress.
+
+Initial Take
+- I agree

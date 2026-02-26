@@ -1,0 +1,52 @@
+{
+  "database": "tasks",
+  "defaults": {
+    "driver": "Jackson",
+    "status": "Not started",
+    "project": "RML Intranet (Rmlintranetdesign)"
+  },
+  "tasks": [
+    {
+      "title": "Add filtering by department and level to Position Descriptions",
+      "priority": "🟡 Normal",
+      "effort": 2,
+      "tags": ["Website"],
+      "summary": "Add dropdown filters for department and level on People page. Enable bookmarkable URL query params.",
+      "url": "https://github.com/Roam-Migration/Rmlintranetdesign",
+      "content": "# Phase 2: Filtering & Organization\n\n**Context:** Phase 1 MVP complete - 7 position descriptions displaying on People page.\n\n## Requirements\n- Department dropdown filter\n- Level dropdown filter\n- URL query params for bookmarkable links\n- Clear filters button\n\n## Implementation\n- Use existing `getUniqueDepartments()` and `getUniqueLevels()` utilities\n- Client-side filtering (data cached)\n- React Router `useSearchParams` for URL sync\n\n## Related\n- Session: `/home/jtaylor/everything-claude-code/docs/sessions/2026-02-16-intranet-position-descriptions-phase1.md`"
+    },
+    {
+      "title": "Implement full-text search for Position Descriptions",
+      "priority": "🟡 Normal",
+      "effort": 2,
+      "tags": ["Website"],
+      "summary": "Add search input with PostgreSQL full-text search across PD titles, responsibilities, and KPIs.",
+      "url": "https://github.com/Roam-Migration/Rmlintranetdesign"
+    },
+    {
+      "title": "Build detail view modal for full Position Description display",
+      "priority": "🟡 Normal",
+      "effort": 3,
+      "tags": ["Website"],
+      "summary": "Replace 'coming soon' modal with full PD detail view showing all responsibilities, KPIs, reporting structure, and metadata.",
+      "url": "https://github.com/Roam-Migration/Rmlintranetdesign"
+    },
+    {
+      "title": "Link Position Description KPIs to Metabase dashboards",
+      "priority": "High",
+      "effort": 5,
+      "tags": ["Website", "KPI"],
+      "summary": "Create KPI mapping table in Supabase linking PD KPIs to Metabase dashboard URLs. Display live KPI data in PD detail view.",
+      "url": "https://github.com/Roam-Migration/Rmlintranetdesign"
+    },
+    {
+      "title": "Build competency framework integration for Position Descriptions",
+      "status": "Proposed",
+      "priority": "⚪ Low",
+      "effort": 8,
+      "tags": ["Website"],
+      "summary": "Link PD responsibilities to competency definitions, training resources, and progress tracking. Enable career progression pathways.",
+      "url": "https://github.com/Roam-Migration/Rmlintranetdesign"
+    }
+  ]
+}

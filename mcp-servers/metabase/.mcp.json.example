@@ -1,0 +1,11 @@
+{
+  "metabase": {
+    "command": "node",
+    "args": ["<ABSOLUTE_PATH_TO_THIS_DIR>/dist/index.js"],
+    "env": {
+      "METABASE_URL": "https://your-instance.metabaseapp.com",
+      "METABASE_API_KEY": "your_api_key_here",
+      "METABASE_DATABASE_ID": "your_database_id"
+    }
+  }
+}

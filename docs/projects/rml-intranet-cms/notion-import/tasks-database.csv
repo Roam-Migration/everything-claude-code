@@ -1,0 +1,242 @@
+Task Name,Phase,Status,Priority,Category,Estimated Hours,Dependencies,Notes,Due Date
+"Set up project Notion workspace","Phase 1: Foundation",Done,P0,Documentation,1,None,"Import all CSV files and link databases",2026-02-18
+"Review CMS assessment documents","Phase 1: Foundation",Not Started,P0,Documentation,2,None,"Read all 4 strategic documents thoroughly",2026-02-19
+"Approve MVP scope and budget","Phase 1: Foundation",Not Started,P0,Documentation,2,"Review CMS assessment documents","Get stakeholder sign-off",2026-02-20
+"Assign team members and roles","Phase 1: Foundation",Not Started,P0,Documentation,1,"Approve MVP scope and budget","1 senior dev, 0.5 designer, 0.25 devops",2026-02-20
+"Create staging GCP project structure","Phase 1: Foundation",Not Started,P0,DevOps,2,None,"Clone production project settings",2026-02-21
+"Build staging Docker image","Phase 1: Foundation",Not Started,P0,DevOps,1,"Create staging GCP project structure","Tag with :staging",2026-02-21
+"Deploy staging Cloud Run service","Phase 1: Foundation",Not Started,P0,DevOps,1,"Build staging Docker image","Name: rml-intranet-staging",2026-02-21
+"Configure staging environment variables","Phase 1: Foundation",Not Started,P0,DevOps,1,"Deploy staging Cloud Run service","ENVIRONMENT=staging, NODE_ENV=staging",2026-02-21
+"Set up staging Supabase project","Phase 1: Foundation",Not Started,P0,Database,2,"Deploy staging Cloud Run service","Create new project: rml-intranet-staging",2026-02-22
+"Document Supabase connection details","Phase 1: Foundation",Not Started,P1,Database,0.5,"Set up staging Supabase project","Store in secure location",2026-02-22
+"Update Cloud Run with Supabase credentials","Phase 1: Foundation",Not Started,P0,DevOps,0.5,"Document Supabase connection details","Set SUPABASE_URL and keys",2026-02-22
+"Configure staging domain (staging.intranet.roammigrationlaw.com)","Phase 1: Foundation",Not Started,P1,DevOps,1,"Deploy staging Cloud Run service","Update DNS A record",2026-02-23
+"Set up staging IAP (if needed)","Phase 1: Foundation",Not Started,P2,DevOps,2,"Configure staging domain","May allow unauthenticated for testing",2026-02-23
+"Create database migration file 001_cms_schema.sql","Phase 1: Foundation",Not Started,P0,Database,2,"Set up staging Supabase project","Include all tables: pages, forms, assets, etc",2026-02-24
+"Review database schema with team","Phase 1: Foundation",Not Started,P1,Database,1,"Create database migration file 001_cms_schema.sql","Ensure all requirements captured",2026-02-24
+"Run database migration on staging","Phase 1: Foundation",Not Started,P0,Database,0.5,"Review database schema with team","Execute in Supabase SQL editor",2026-02-24
+"Verify all tables created correctly","Phase 1: Foundation",Not Started,P0,Database,0.5,"Run database migration on staging","Check table structure and indexes",2026-02-24
+"Set up Row Level Security policies","Phase 1: Foundation",Not Started,P1,Database,2,"Verify all tables created correctly","Define access rules per table",2026-02-25
+"Test database connections from backend","Phase 1: Foundation",Not Started,P0,Backend,1,"Set up Row Level Security policies","Verify CRUD operations work",2026-02-25
+"Create backend types directory and files","Phase 1: Foundation",Not Started,P0,Backend,1,"Test database connections from backend","page.ts, form.ts, asset.ts",2026-02-25
+"Define Page TypeScript interfaces","Phase 1: Foundation",Not Started,P0,Backend,1,"Create backend types directory and files","Match database schema exactly",2026-02-25
+"Define Form TypeScript interfaces","Phase 1: Foundation",Not Started,P0,Backend,1,"Create backend types directory and files","Include field config types",2026-02-25
+"Define Asset TypeScript interfaces","Phase 1: Foundation",Not Started,P1,Backend,0.5,"Create backend types directory and files","Image, video, document types",2026-02-25
+"Create PageService class","Phase 1: Foundation",Not Started,P0,Backend,3,"Define Page TypeScript interfaces","CRUD operations + versioning",2026-02-26
+"Create FormService class","Phase 1: Foundation",Not Started,P0,Backend,2,"Define Form TypeScript interfaces","CRUD operations + validation",2026-02-26
+"Create AssetService class","Phase 1: Foundation",Not Started,P1,Backend,2,"Define Asset TypeScript interfaces","Upload, storage, optimization",2026-02-26
+"Create AuditService class","Phase 1: Foundation",Not Started,P2,Backend,1,None,"Log all CMS operations",2026-02-26
+"Create pages API routes (GET, POST, PATCH, DELETE)","Phase 1: Foundation",Not Started,P0,Backend,2,"Create PageService class","Mount at /api/cms/pages",2026-02-27
+"Add page publish endpoint","Phase 1: Foundation",Not Started,P0,Backend,1,"Create pages API routes","POST /api/cms/pages/:id/publish",2026-02-27
+"Add page versions endpoint","Phase 1: Foundation",Not Started,P1,Backend,1,"Create pages API routes","GET /api/cms/pages/:id/versions",2026-02-27
+"Add version restore endpoint","Phase 1: Foundation",Not Started,P1,Backend,1,"Add page versions endpoint","POST /api/cms/pages/:id/restore/:versionId",2026-02-27
+"Create forms API routes","Phase 1: Foundation",Not Started,P0,Backend,2,"Create FormService class","CRUD for forms",2026-02-27
+"Create assets API routes","Phase 1: Foundation",Not Started,P1,Backend,2,"Create AssetService class","Upload, list, delete",2026-02-28
+"Add request validation with Zod","Phase 1: Foundation",Not Started,P0,Backend,2,"Create pages API routes","Validate all POST/PATCH bodies",2026-02-28
+"Add error handling middleware","Phase 1: Foundation",Not Started,P1,Backend,1,"Add request validation with Zod","Consistent error responses",2026-02-28
+"Add audit logging middleware","Phase 1: Foundation",Not Started,P2,Backend,1,"Create AuditService class","Log all CMS operations",2026-02-28
+"Update backend index.ts with CMS routes","Phase 1: Foundation",Not Started,P0,Backend,0.5,"Create pages API routes","Mount all CMS routes",2026-02-28
+"Build backend TypeScript","Phase 1: Foundation",Not Started,P0,Backend,0.25,"Update backend index.ts with CMS routes","npm run build",2026-02-28
+"Deploy backend to staging","Phase 1: Foundation",Not Started,P0,DevOps,1,"Build backend TypeScript","Deploy to rml-intranet-forms-api-staging",2026-02-28
+"Test Pages API with curl/Postman","Phase 1: Foundation",Not Started,P0,Testing,2,"Deploy backend to staging","Test all endpoints",2026-03-01
+"Test Forms API with curl/Postman","Phase 1: Foundation",Not Started,P0,Testing,1,"Deploy backend to staging","Test all endpoints",2026-03-01
+"Document API endpoints (OpenAPI/Postman)","Phase 1: Foundation",Not Started,P1,Documentation,2,"Test Pages API with curl/Postman","Create API documentation",2026-03-01
+"Create Week 1 progress report","Phase 1: Foundation",Not Started,P1,Documentation,1,"Document API endpoints","Update WEEK1_PROGRESS.md",2026-03-01
+"Install required npm packages (if missing)","Phase 2: Page Builder",Not Started,P0,Frontend,0.5,"Phase 1 complete","react-dnd already installed, check others",2026-03-04
+"Create PageBuilder directory structure","Phase 2: Page Builder",Not Started,P0,Frontend,0.5,"Install required npm packages","Create all subdirectories",2026-03-04
+"Create PageBuilder TypeScript types","Phase 2: Page Builder",Not Started,P0,Frontend,1,"Create PageBuilder directory structure","PageBuilderBlock, BlockDefinition, etc",2026-03-04
+"Create usePageBuilder hook","Phase 2: Page Builder",Not Started,P0,Frontend,3,"Create PageBuilder TypeScript types","State management, undo/redo, CRUD",2026-03-04
+"Create useDragDrop hook","Phase 2: Page Builder",Not Started,P1,Frontend,2,"Create usePageBuilder hook","React DnD integration",2026-03-05
+"Create BlockLibrary component","Phase 2: Page Builder",Not Started,P0,Frontend,2,"Create PageBuilder TypeScript types","Left sidebar with available blocks",2026-03-05
+"Create Canvas component","Phase 2: Page Builder",Not Started,P0,Frontend,3,"Create usePageBuilder hook","Center drag-and-drop area",2026-03-06
+"Create BlockRenderer component","Phase 2: Page Builder",Not Started,P0,Frontend,2,"Create Canvas component","Renders blocks in canvas",2026-03-06
+"Create PropertyPanel component","Phase 2: Page Builder",Not Started,P0,Frontend,3,"Create PageBuilder TypeScript types","Right sidebar for block config",2026-03-07
+"Create main PageBuilder component","Phase 2: Page Builder",Not Started,P0,Frontend,2,"Create BlockLibrary component","Integrate all subcomponents",2026-03-07
+"Add toolbar with undo/redo buttons","Phase 2: Page Builder",Not Started,P1,Frontend,1,"Create main PageBuilder component","Use buttons from shadcn/ui",2026-03-08
+"Add save button with loading state","Phase 2: Page Builder",Not Started,P0,Frontend,1,"Create main PageBuilder component","Call API on save",2026-03-08
+"Add preview mode toggle","Phase 2: Page Builder",Not Started,P1,Frontend,1,"Create main PageBuilder component","Switch between edit/preview",2026-03-08
+"Implement keyboard shortcuts (Cmd+Z, Cmd+S)","Phase 2: Page Builder",Not Started,P2,Frontend,1,"Add toolbar with undo/redo buttons","Add onKeyDown handler",2026-03-08
+"Create HeroBlock component","Phase 2: Page Builder",Not Started,P0,Frontend,2,"Create BlockRenderer component","Title, subtitle, background, CTA",2026-03-11
+"Create TextBlock component","Phase 2: Page Builder",Not Started,P0,Frontend,2,"Create BlockRenderer component","Rich text with alignment",2026-03-11
+"Create ImageBlock component","Phase 2: Page Builder",Not Started,P0,Frontend,2,"Create BlockRenderer component","Image with caption and alt text",2026-03-11
+"Create CardGridBlock component","Phase 2: Page Builder",Not Started,P0,Frontend,3,"Create BlockRenderer component","Grid of cards with configurable columns",2026-03-12
+"Create NotionTableBlock component (wrapper)","Phase 2: Page Builder",Not Started,P1,Frontend,2,"Create BlockRenderer component","Wrap existing NotionTable component",2026-03-12
+"Create ChartBlock component","Phase 2: Page Builder",Not Started,P1,Frontend,2,"Create BlockRenderer component","Wrap Recharts charts",2026-03-12
+"Create AccordionBlock component","Phase 2: Page Builder",Not Started,P2,Frontend,2,"Create BlockRenderer component","Collapsible sections",2026-03-13
+"Create TabsBlock component","Phase 2: Page Builder",Not Started,P2,Frontend,2,"Create BlockRenderer component","Tabbed content",2026-03-13
+"Create VideoBlock component","Phase 2: Page Builder",Not Started,P2,Frontend,1,"Create BlockRenderer component","Embed YouTube/Vimeo",2026-03-13
+"Create SpacerBlock component","Phase 2: Page Builder",Not Started,P2,Frontend,0.5,"Create BlockRenderer component","Adjustable vertical space",2026-03-13
+"Create ContainerBlock component","Phase 2: Page Builder",Not Started,P2,Frontend,2,"Create BlockRenderer component","Wrapper with background/padding",2026-03-14
+"Create ColumnLayoutBlock component","Phase 2: Page Builder",Not Started,P2,Frontend,3,"Create BlockRenderer component","Multi-column layouts",2026-03-14
+"Create block registry (index.ts)","Phase 2: Page Builder",Not Started,P0,Frontend,2,"Create HeroBlock component","Export all blocks with metadata",2026-03-14
+"Implement block default configs","Phase 2: Page Builder",Not Started,P0,Frontend,1,"Create block registry","Default config for each block type",2026-03-15
+"Add block category grouping","Phase 2: Page Builder",Not Started,P1,Frontend,1,"Create block registry","Content, Layout, Data, Media",2026-03-15
+"Implement drag-and-drop from library to canvas","Phase 2: Page Builder",Not Started,P0,Frontend,3,"Create useDragDrop hook","React DnD drag source/target",2026-03-15
+"Implement drag-and-drop reordering in canvas","Phase 2: Page Builder",Not Started,P0,Frontend,3,"Implement drag-and-drop from library to canvas","Reorder blocks by dragging",2026-03-16
+"Add visual feedback for drag operations","Phase 2: Page Builder",Not Started,P1,Frontend,2,"Implement drag-and-drop reordering in canvas","Highlight drop zones, show placeholder",2026-03-16
+"Implement block selection on click","Phase 2: Page Builder",Not Started,P0,Frontend,1,"Create Canvas component","Highlight selected block",2026-03-17
+"Show property panel when block selected","Phase 2: Page Builder",Not Started,P0,Frontend,1,"Implement block selection on click","Display block config options",2026-03-17
+"Implement property panel inputs (text, color, etc)","Phase 2: Page Builder",Not Started,P0,Frontend,4,"Show property panel when block selected","Dynamic inputs based on block type",2026-03-18
+"Add property validation in panel","Phase 2: Page Builder",Not Started,P1,Frontend,2,"Implement property panel inputs","Validate before applying changes",2026-03-18
+"Implement real-time preview of property changes","Phase 2: Page Builder",Not Started,P2,Frontend,2,"Implement property panel inputs","Update canvas as user types",2026-03-19
+"Add delete button in property panel","Phase 2: Page Builder",Not Started,P0,Frontend,0.5,"Show property panel when block selected","Confirm before deleting",2026-03-19
+"Add duplicate button in property panel","Phase 2: Page Builder",Not Started,P1,Frontend,1,"Show property panel when block selected","Clone block with new ID",2026-03-19
+"Implement undo/redo with history stack","Phase 2: Page Builder",Not Started,P0,Frontend,3,"Create usePageBuilder hook","Array of page states",2026-03-20
+"Add undo/redo keyboard shortcuts","Phase 2: Page Builder",Not Started,P1,Frontend,0.5,"Implement undo/redo with history stack","Cmd+Z, Cmd+Shift+Z",2026-03-20
+"Implement save page to API","Phase 2: Page Builder",Not Started,P0,Frontend,2,"Add save button with loading state","POST/PATCH to /api/cms/pages",2026-03-20
+"Add auto-save draft (debounced)","Phase 2: Page Builder",Not Started,P1,Frontend,2,"Implement save page to API","Save draft every 30 seconds",2026-03-21
+"Implement load page from API","Phase 2: Page Builder",Not Started,P0,Frontend,1,"Implement save page to API","GET /api/cms/pages/:id",2026-03-21
+"Add error handling for API calls","Phase 2: Page Builder",Not Started,P0,Frontend,1,"Implement save page to API","Show toast notifications",2026-03-21
+"Create PageBuilderTestPage route","Phase 2: Page Builder",Not Started,P0,Frontend,0.5,"Create main PageBuilder component","Add to App.tsx",2026-03-22
+"Add PageBuilder to existing pages (conditional)","Phase 2: Page Builder",Not Started,P2,Frontend,2,"Create PageBuilderTestPage route","Edit mode for existing pages",2026-03-22
+"Style page builder with Tailwind","Phase 2: Page Builder",Not Started,P1,Frontend,3,"Create main PageBuilder component","Match brand colors, responsive",2026-03-22
+"Add loading states throughout builder","Phase 2: Page Builder",Not Started,P1,Frontend,2,"Create main PageBuilder component","Skeleton loaders, spinners",2026-03-23
+"Add empty states (no blocks)","Phase 2: Page Builder",Not Started,P1,Frontend,1,"Create Canvas component","Instructional text",2026-03-23
+"Add mobile responsive breakpoints","Phase 2: Page Builder",Not Started,P2,Frontend,3,"Style page builder with Tailwind","Builder may be desktop-only for MVP",2026-03-23
+"Manual test: Add blocks to canvas","Phase 2: Page Builder",Not Started,P0,Testing,1,"Create PageBuilderTestPage route","Test all block types",2026-03-24
+"Manual test: Reorder blocks","Phase 2: Page Builder",Not Started,P0,Testing,0.5,"Implement drag-and-drop reordering in canvas","Drag to reorder",2026-03-24
+"Manual test: Configure blocks","Phase 2: Page Builder",Not Started,P0,Testing,1,"Implement property panel inputs","Edit properties, verify updates",2026-03-24
+"Manual test: Undo/redo","Phase 2: Page Builder",Not Started,P0,Testing,0.5,"Implement undo/redo with history stack","Test edge cases",2026-03-24
+"Manual test: Save and load page","Phase 2: Page Builder",Not Started,P0,Testing,1,"Implement load page from API","Save, reload, verify persisted",2026-03-24
+"Write unit tests for usePageBuilder hook","Phase 2: Page Builder",Not Started,P1,Testing,3,"Create usePageBuilder hook","Test CRUD, undo/redo",2026-03-25
+"Write unit tests for block components","Phase 2: Page Builder",Not Started,P2,Testing,4,"Create HeroBlock component","Render tests for each block",2026-03-25
+"Document page builder usage","Phase 2: Page Builder",Not Started,P1,Documentation,2,"Manual test: Save and load page","User guide for content editors",2026-03-25
+"Create block library showcase page","Phase 2: Page Builder",Not Started,P2,Documentation,2,"Create block registry","Visual catalog of all blocks",2026-03-26
+"Record page builder demo video","Phase 2: Page Builder",Not Started,P2,Documentation,1,"Manual test: Save and load page","Screen recording of workflow",2026-03-26
+"Create Phase 2 completion report","Phase 2: Page Builder",Not Started,P1,Documentation,1,"Record page builder demo video","What worked, what didn't, lessons",2026-03-26
+"Create FormBuilder directory structure","Phase 3: Form Builder",Not Started,P0,Frontend,0.5,"Phase 2 complete","Similar to PageBuilder structure",2026-03-27
+"Create FormBuilder TypeScript types","Phase 3: Form Builder",Not Started,P0,Frontend,2,"Create FormBuilder directory structure","FormField, ValidationRule, ConditionalRule",2026-03-27
+"Define field type enum","Phase 3: Form Builder",Not Started,P0,Frontend,1,"Create FormBuilder TypeScript types","text, email, select, checkbox, etc",2026-03-28
+"Create useFormBuilder hook","Phase 3: Form Builder",Not Started,P0,Frontend,3,"Create FormBuilder TypeScript types","Similar to usePageBuilder",2026-03-28
+"Create FieldLibrary component","Phase 3: Form Builder",Not Started,P0,Frontend,2,"Create FormBuilder TypeScript types","Available field types",2026-03-29
+"Create FormCanvas component","Phase 3: Form Builder",Not Started,P0,Frontend,2,"Create useFormBuilder hook","Preview of form as built",2026-03-29
+"Create FieldConfigPanel component","Phase 3: Form Builder",Not Started,P0,Frontend,3,"Create FormBuilder TypeScript types","Configure field properties",2026-03-30
+"Create main FormBuilder component","Phase 3: Form Builder",Not Started,P0,Frontend,2,"Create FieldLibrary component","Integrate all subcomponents",2026-03-30
+"Create TextField component","Phase 3: Form Builder",Not Started,P0,Frontend,1,"Create FormCanvas component","Basic text input",2026-03-31
+"Create EmailField component","Phase 3: Form Builder",Not Started,P0,Frontend,1,"Create TextField component","Email validation built-in",2026-03-31
+"Create PhoneField component","Phase 3: Form Builder",Not Started,P1,Frontend,1,"Create TextField component","Phone number formatting",2026-03-31
+"Create TextareaField component","Phase 3: Form Builder",Not Started,P0,Frontend,1,"Create TextField component","Multi-line text",2026-04-01
+"Create SelectField component","Phase 3: Form Builder",Not Started,P0,Frontend,2,"Create FormCanvas component","Dropdown with options",2026-04-01
+"Create MultiSelectField component","Phase 3: Form Builder",Not Started,P1,Frontend,2,"Create SelectField component","Multiple selection",2026-04-01
+"Create RadioField component","Phase 3: Form Builder",Not Started,P1,Frontend,1,"Create SelectField component","Radio button group",2026-04-01
+"Create CheckboxField component","Phase 3: Form Builder",Not Started,P0,Frontend,1,"Create FormCanvas component","Single or group",2026-04-02
+"Create FileUploadField component","Phase 3: Form Builder",Not Started,P0,Frontend,3,"Create FormCanvas component","File upload with preview",2026-04-02
+"Create DateField component","Phase 3: Form Builder",Not Started,P1,Frontend,2,"Create FormCanvas component","Date picker integration",2026-04-03
+"Create TimeField component","Phase 3: Form Builder",Not Started,P2,Frontend,1,"Create DateField component","Time picker",2026-04-03
+"Create URLField component","Phase 3: Form Builder",Not Started,P2,Frontend,1,"Create TextField component","URL validation",2026-04-03
+"Create field registry","Phase 3: Form Builder",Not Started,P0,Frontend,2,"Create TextField component","Export all field types",2026-04-04
+"Implement drag-and-drop for fields","Phase 3: Form Builder",Not Started,P0,Frontend,3,"Create useFormBuilder hook","Add and reorder fields",2026-04-04
+"Implement field configuration inputs","Phase 3: Form Builder",Not Started,P0,Frontend,4,"Create FieldConfigPanel component","Label, placeholder, required, etc",2026-04-05
+"Create validation rule builder UI","Phase 3: Form Builder",Not Started,P0,Frontend,4,"Create FieldConfigPanel component","Add/edit validation rules",2026-04-06
+"Implement validation rule execution","Phase 3: Form Builder",Not Started,P0,Frontend,3,"Create validation rule builder UI","Runtime validation logic",2026-04-07
+"Create conditional logic builder UI","Phase 3: Form Builder",Not Started,P1,Frontend,4,"Create FieldConfigPanel component","Show/hide fields based on conditions",2026-04-08
+"Implement conditional logic execution","Phase 3: Form Builder",Not Started,P1,Frontend,3,"Create conditional logic builder UI","Runtime conditional logic",2026-04-09
+"Create form styling options panel","Phase 3: Form Builder",Not Started,P2,Frontend,2,"Create main FormBuilder component","Colors, spacing, layout",2026-04-09
+"Implement save form to API","Phase 3: Form Builder",Not Started,P0,Frontend,2,"Create main FormBuilder component","POST/PATCH to /api/cms/forms",2026-04-10
+"Implement load form from API","Phase 3: Form Builder",Not Started,P0,Frontend,1,"Implement save form to API","GET /api/cms/forms/:id",2026-04-10
+"Create dynamic form renderer","Phase 3: Form Builder",Not Started,P0,Frontend,4,"Create field registry","Render form from config JSON",2026-04-11
+"Implement form submission handler","Phase 3: Form Builder",Not Started,P0,Frontend,2,"Create dynamic form renderer","POST to submission endpoint",2026-04-11
+"Add form success/error states","Phase 3: Form Builder",Not Started,P0,Frontend,1,"Implement form submission handler","Thank you message, error display",2026-04-11
+"Create contact form template","Phase 3: Form Builder",Not Started,P1,Frontend,1,"Create dynamic form renderer","Name, email, message",2026-04-12
+"Create feedback form template","Phase 3: Form Builder",Not Started,P1,Frontend,1,"Create dynamic form renderer","Rating, comments",2026-04-12
+"Create registration form template","Phase 3: Form Builder",Not Started,P2,Frontend,1,"Create dynamic form renderer","User registration fields",2026-04-12
+"Create survey form template","Phase 3: Form Builder",Not Started,P2,Frontend,2,"Create dynamic form renderer","Multiple question types",2026-04-12
+"Create file upload form template","Phase 3: Form Builder",Not Started,P2,Frontend,1,"Create dynamic form renderer","File upload with description",2026-04-12
+"Manual test: Create form with all field types","Phase 3: Form Builder",Not Started,P0,Testing,2,"Create dynamic form renderer","Test each field type",2026-04-13
+"Manual test: Add validation rules","Phase 3: Form Builder",Not Started,P0,Testing,1,"Implement validation rule execution","Test various validations",2026-04-13
+"Manual test: Add conditional logic","Phase 3: Form Builder",Not Started,P1,Testing,1,"Implement conditional logic execution","Test show/hide conditions",2026-04-13
+"Manual test: Submit form","Phase 3: Form Builder",Not Started,P0,Testing,1,"Implement form submission handler","Verify submission saved",2026-04-13
+"Write unit tests for form components","Phase 3: Form Builder",Not Started,P2,Testing,4,"Create TextField component","Test rendering and validation",2026-04-14
+"Document form builder usage","Phase 3: Form Builder",Not Started,P1,Documentation,2,"Manual test: Submit form","User guide for form creation",2026-04-14
+"Create Phase 3 completion report","Phase 3: Form Builder",Not Started,P1,Documentation,1,"Document form builder usage","Lessons learned",2026-04-15
+"Implement draft status for pages","Phase 4: Publishing Workflow",Not Started,P0,Backend,1,"Phase 3 complete","Add to PageService",2026-04-16
+"Implement publish action","Phase 4: Publishing Workflow",Not Started,P0,Backend,1,"Implement draft status for pages","Update status + published_at",2026-04-16
+"Implement unpublish action","Phase 4: Publishing Workflow",Not Started,P1,Backend,1,"Implement publish action","Revert to draft",2026-04-16
+"Implement archive action","Phase 4: Publishing Workflow",Not Started,P1,Backend,1,"Implement publish action","Archive old pages",2026-04-16
+"Add publish button to page builder","Phase 4: Publishing Workflow",Not Started,P0,Frontend,1,"Implement publish action","Call publish API",2026-04-17
+"Add status badge to page list","Phase 4: Publishing Workflow",Not Started,P0,Frontend,1,"Implement draft status for pages","Draft/Published indicator",2026-04-17
+"Implement scheduled publishing (backend)","Phase 4: Publishing Workflow",Not Started,P1,Backend,3,"Implement publish action","Cron job or scheduled task",2026-04-17
+"Add scheduled publish UI","Phase 4: Publishing Workflow",Not Started,P1,Frontend,2,"Implement scheduled publishing (backend)","Date/time picker for publish",2026-04-18
+"Create publish history view","Phase 4: Publishing Workflow",Not Started,P2,Frontend,2,"Add publish button to page builder","Timeline of publish events",2026-04-18
+"Implement version comparison UI","Phase 4: Publishing Workflow",Not Started,P1,Frontend,4,"Create publish history view","Side-by-side diff view",2026-04-19
+"Implement rollback functionality","Phase 4: Publishing Workflow",Not Started,P0,Backend,2,"Implement version comparison UI","Restore previous version",2026-04-19
+"Add rollback button in version history","Phase 4: Publishing Workflow",Not Started,P0,Frontend,1,"Implement rollback functionality","Confirm before rollback",2026-04-20
+"Create staging → production promotion workflow","Phase 4: Publishing Workflow",Not Started,P0,Backend,4,"Implement publish action","Copy data between environments",2026-04-21
+"Add promotion UI in admin panel","Phase 4: Publishing Workflow",Not Started,P0,Frontend,3,"Create staging → production promotion workflow","Select pages to promote",2026-04-22
+"Implement content diff view for promotion","Phase 4: Publishing Workflow",Not Started,P1,Frontend,3,"Add promotion UI in admin panel","Show what will change",2026-04-22
+"Add bulk promotion for multiple pages","Phase 4: Publishing Workflow",Not Started,P1,Frontend,2,"Add promotion UI in admin panel","Select multiple, promote all",2026-04-23
+"Create promotion approval workflow (optional)","Phase 4: Publishing Workflow",Not Started,P2,Backend,4,"Add promotion UI in admin panel","Multi-step approval process",2026-04-23
+"Manual test: Draft → publish workflow","Phase 4: Publishing Workflow",Not Started,P0,Testing,1,"Add publish button to page builder","Full workflow test",2026-04-24
+"Manual test: Version rollback","Phase 4: Publishing Workflow",Not Started,P0,Testing,1,"Add rollback button in version history","Verify content restored",2026-04-24
+"Manual test: Environment promotion","Phase 4: Publishing Workflow",Not Started,P0,Testing,2,"Add promotion UI in admin panel","Staging → prod test",2026-04-24
+"Document publishing workflow","Phase 4: Publishing Workflow",Not Started,P1,Documentation,2,"Manual test: Draft → publish workflow","User guide for publishing",2026-04-25
+"Create Phase 4 completion report","Phase 4: Publishing Workflow",Not Started,P1,Documentation,1,"Document publishing workflow","Lessons learned",2026-04-25
+"Set up Google Cloud Storage bucket for assets","Phase 5: Asset Management",Not Started,P0,DevOps,2,"Phase 4 complete","Create staging and prod buckets",2026-04-28
+"Configure bucket permissions and CORS","Phase 5: Asset Management",Not Started,P0,DevOps,1,"Set up Google Cloud Storage bucket for assets","Allow uploads from app",2026-04-28
+"Implement file upload to GCS (backend)","Phase 5: Asset Management",Not Started,P0,Backend,4,"Configure bucket permissions and CORS","Generate signed URLs",2026-04-29
+"Implement image optimization (sharp library)","Phase 5: Asset Management",Not Started,P1,Backend,3,"Implement file upload to GCS","Resize, compress, generate thumbnails",2026-04-30
+"Create asset upload API endpoint","Phase 5: Asset Management",Not Started,P0,Backend,2,"Implement file upload to GCS","POST /api/cms/assets",2026-04-30
+"Create asset list API endpoint","Phase 5: Asset Management",Not Started,P0,Backend,1,"Create asset upload API endpoint","GET /api/cms/assets with filters",2026-05-01
+"Create asset delete API endpoint","Phase 5: Asset Management",Not Started,P0,Backend,1,"Create asset upload API endpoint","DELETE /api/cms/assets/:id",2026-05-01
+"Create MediaLibrary component","Phase 5: Asset Management",Not Started,P0,Frontend,4,"Create asset list API endpoint","Grid view of assets",2026-05-02
+"Implement drag-and-drop file upload UI","Phase 5: Asset Management",Not Started,P0,Frontend,3,"Create MediaLibrary component","Dropzone for files",2026-05-03
+"Add file upload progress indicator","Phase 5: Asset Management",Not Started,P1,Frontend,1,"Implement drag-and-drop file upload UI","Progress bar per file",2026-05-03
+"Implement asset thumbnail generation","Phase 5: Asset Management",Not Started,P1,Frontend,2,"Create MediaLibrary component","Display thumbnails",2026-05-04
+"Create asset browser/picker component","Phase 5: Asset Management",Not Started,P0,Frontend,3,"Create MediaLibrary component","Modal for selecting assets",2026-05-04
+"Add search and filter to media library","Phase 5: Asset Management",Not Started,P1,Frontend,2,"Create MediaLibrary component","Filter by type, search by name",2026-05-05
+"Add asset tags functionality","Phase 5: Asset Management",Not Started,P2,Frontend,2,"Create MediaLibrary component","Tag assets for organization",2026-05-05
+"Integrate asset picker with ImageBlock","Phase 5: Asset Management",Not Started,P0,Frontend,2,"Create asset browser/picker component","Browse assets in page builder",2026-05-06
+"Add asset management page to admin","Phase 5: Asset Management",Not Started,P0,Frontend,2,"Create MediaLibrary component","Standalone asset manager",2026-05-06
+"Implement asset lazy loading","Phase 5: Asset Management",Not Started,P1,Frontend,2,"Create MediaLibrary component","Load thumbnails on scroll",2026-05-06
+"Add CDN integration (optional)","Phase 5: Asset Management",Not Started,P2,DevOps,3,"Implement file upload to GCS","Cloud CDN for faster delivery",2026-05-07
+"Manual test: Upload various file types","Phase 5: Asset Management",Not Started,P0,Testing,1,"Implement drag-and-drop file upload UI","Images, PDFs, videos",2026-05-07
+"Manual test: Image optimization","Phase 5: Asset Management",Not Started,P1,Testing,0.5,"Implement image optimization","Verify file sizes reduced",2026-05-07
+"Manual test: Asset picker in page builder","Phase 5: Asset Management",Not Started,P0,Testing,1,"Integrate asset picker with ImageBlock","Select and insert assets",2026-05-07
+"Document asset management usage","Phase 5: Asset Management",Not Started,P1,Documentation,1,"Manual test: Asset picker in page builder","User guide for media library",2026-05-08
+"Create Phase 5 completion report","Phase 5: Asset Management",Not Started,P1,Documentation,1,"Document asset management usage","Lessons learned",2026-05-08
+"Conduct usability testing with beta users","Phase 6: Polish & Testing",Not Started,P0,Testing,8,"Phase 5 complete","3-5 beta testers, 2 sessions each",2026-05-11
+"Gather and document usability feedback","Phase 6: Polish & Testing",Not Started,P0,Testing,2,"Conduct usability testing with beta users","Create feedback report",2026-05-12
+"Prioritize UI/UX improvements from feedback","Phase 6: Polish & Testing",Not Started,P0,Design,2,"Gather and document usability feedback","Create improvement backlog",2026-05-12
+"Refine page builder interactions","Phase 6: Polish & Testing",Not Started,P1,Frontend,4,"Prioritize UI/UX improvements from feedback","Smoother drag-and-drop, better feedback",2026-05-13
+"Improve form builder UX","Phase 6: Polish & Testing",Not Started,P1,Frontend,3,"Prioritize UI/UX improvements from feedback","Clearer field configuration",2026-05-14
+"Polish visual design and styling","Phase 6: Polish & Testing",Not Started,P1,Design,4,"Prioritize UI/UX improvements from feedback","Consistent colors, spacing, typography",2026-05-15
+"Add animations and transitions","Phase 6: Polish & Testing",Not Started,P2,Frontend,2,"Polish visual design and styling","Smooth state changes",2026-05-16
+"Create onboarding tour for page builder","Phase 6: Polish & Testing",Not Started,P1,Frontend,3,"Conduct usability testing with beta users","Step-by-step guide for first use",2026-05-16
+"Create onboarding tour for form builder","Phase 6: Polish & Testing",Not Started,P1,Frontend,2,"Create onboarding tour for page builder","Step-by-step guide for first use",2026-05-17
+"Add contextual help tooltips","Phase 6: Polish & Testing",Not Started,P2,Frontend,2,"Create onboarding tour for page builder","Explain features inline",2026-05-17
+"Optimize page builder rendering performance","Phase 6: Polish & Testing",Not Started,P1,Frontend,4,"Phase 5 complete","Lazy loading, virtualization, memoization",2026-05-18
+"Implement lazy loading for blocks","Phase 6: Polish & Testing",Not Started,P1,Frontend,2,"Optimize page builder rendering performance","Load blocks on demand",2026-05-19
+"Add caching strategies (frontend)","Phase 6: Polish & Testing",Not Started,P1,Frontend,2,"Optimize page builder rendering performance","Cache API responses",2026-05-19
+"Optimize database queries (backend)","Phase 6: Polish & Testing",Not Started,P1,Backend,3,"Phase 5 complete","Add indexes, use select(), paginate",2026-05-20
+"Add API response caching (Redis optional)","Phase 6: Polish & Testing",Not Started,P2,Backend,3,"Optimize database queries","Cache published pages",2026-05-20
+"Reduce bundle size (code splitting)","Phase 6: Polish & Testing",Not Started,P1,Frontend,3,"Optimize page builder rendering performance","Lazy load page builder, form builder",2026-05-21
+"Run Lighthouse performance audit","Phase 6: Polish & Testing",Not Started,P1,Testing,1,"Reduce bundle size","Target: 90+ score",2026-05-21
+"Write unit tests for critical paths","Phase 6: Polish & Testing",Not Started,P0,Testing,8,"Phase 5 complete","usePageBuilder, useFormBuilder, services",2026-05-22
+"Write integration tests for APIs","Phase 6: Polish & Testing",Not Started,P1,Testing,6,"Write unit tests for critical paths","Test all API endpoints",2026-05-23
+"Write E2E tests with Playwright","Phase 6: Polish & Testing",Not Started,P0,Testing,8,"Write integration tests for APIs","Full user workflows",2026-05-26
+"Test all user workflows end-to-end","Phase 6: Polish & Testing",Not Started,P0,Testing,4,"Write E2E tests with Playwright","Create, edit, publish page/form",2026-05-27
+"Perform load testing","Phase 6: Polish & Testing",Not Started,P1,Testing,3,"Test all user workflows end-to-end","Simulate multiple concurrent users",2026-05-27
+"Run security audit (OWASP)","Phase 6: Polish & Testing",Not Started,P0,Testing,4,"Test all user workflows end-to-end","XSS, CSRF, SQL injection, etc",2026-05-28
+"Fix security vulnerabilities","Phase 6: Polish & Testing",Not Started,P0,Backend,4,"Run security audit","Address all critical/high issues",2026-05-29
+"Test browser compatibility","Phase 6: Polish & Testing",Not Started,P1,Testing,3,"Write E2E tests with Playwright","Chrome, Firefox, Safari, Edge",2026-05-29
+"Test mobile/tablet responsiveness","Phase 6: Polish & Testing",Not Started,P2,Testing,2,"Test browser compatibility","May limit builder to desktop",2026-05-30
+"Write user guide for content editors","Phase 6: Polish & Testing",Not Started,P0,Documentation,8,"Conduct usability testing with beta users","Complete how-to guide",2026-05-30
+"Write admin guide for administrators","Phase 6: Polish & Testing",Not Started,P0,Documentation,4,"Write user guide for content editors","User management, settings",2026-06-02
+"Write developer guide for customization","Phase 6: Polish & Testing",Not Started,P1,Documentation,6,"Write admin guide for administrators","How to add blocks, extend CMS",2026-06-03
+"Create API documentation (OpenAPI)","Phase 6: Polish & Testing",Not Started,P1,Documentation,4,"Write developer guide for customization","Complete API reference",2026-06-04
+"Record video tutorials","Phase 6: Polish & Testing",Not Started,P1,Documentation,6,"Write user guide for content editors","Screen recordings for key tasks",2026-06-05
+"Create migration guide for existing pages","Phase 6: Polish & Testing",Not Started,P1,Documentation,3,"Write developer guide for customization","How to convert hardcoded pages",2026-06-06
+"Write troubleshooting guide","Phase 6: Polish & Testing",Not Started,P2,Documentation,2,"Write user guide for content editors","Common issues and solutions",2026-06-06
+"Set up production monitoring (Cloud Monitoring)","Phase 6: Polish & Testing",Not Started,P1,DevOps,3,"Phase 5 complete","Metrics, logs, traces",2026-06-09
+"Configure error alerting","Phase 6: Polish & Testing",Not Started,P1,DevOps,2,"Set up production monitoring","Alert on errors, downtime",2026-06-09
+"Set up performance monitoring","Phase 6: Polish & Testing",Not Started,P1,DevOps,2,"Set up production monitoring","Track response times, throughput",2026-06-09
+"Create production deployment checklist","Phase 6: Polish & Testing",Not Started,P0,DevOps,2,"Test all user workflows end-to-end","Pre-deployment verification",2026-06-10
+"Perform final staging deployment test","Phase 6: Polish & Testing",Not Started,P0,DevOps,2,"Create production deployment checklist","Full smoke test on staging",2026-06-10
+"Deploy to production","Phase 6: Polish & Testing",Not Started,P0,DevOps,2,"Perform final staging deployment test","Blue-green deployment",2026-06-11
+"Verify production deployment","Phase 6: Polish & Testing",Not Started,P0,DevOps,1,"Deploy to production","Smoke tests on prod",2026-06-11
+"Monitor production for 24 hours","Phase 6: Polish & Testing",Not Started,P0,DevOps,2,"Verify production deployment","Watch for errors, performance issues",2026-06-12
+"Conduct final user acceptance testing","Phase 6: Polish & Testing",Not Started,P0,Testing,4,"Deploy to production","Beta testers validate on prod",2026-06-12
+"Create project completion report","Phase 6: Polish & Testing",Not Started,P0,Documentation,4,"Conduct final user acceptance testing","Executive summary of project",2026-06-13
+"Present to stakeholders","Phase 6: Polish & Testing",Not Started,P0,Documentation,1,"Create project completion report","Demo and Q&A session",2026-06-13
+"Plan post-MVP roadmap","Phase 6: Polish & Testing",Not Started,P1,Documentation,3,"Create project completion report","Next features, improvements",2026-06-13
+"Celebrate launch! 🎉","Phase 6: Polish & Testing",Not Started,P0,Documentation,0,"Present to stakeholders","Team celebration",2026-06-13

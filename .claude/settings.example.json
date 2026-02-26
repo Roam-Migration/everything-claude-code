@@ -1,0 +1,47 @@
+{
+  "_comment": "Copy this file to settings.json and customize for your environment",
+  "enabledPlugins": {
+    "Notion@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "supabase@claude-plugins-official": true
+  },
+  "permissions": {
+    "_comment_allow": "Broad allow patterns eliminate per-command approval prompts for safe operations. deny entries take precedence over allow.",
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "WebSearch",
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(python3 *)",
+      "Bash(bash *)",
+      "Bash(gcloud *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(grep *)",
+      "Bash(find *)",
+      "Bash(echo *)",
+      "Bash(curl *)",
+      "Bash(cd *)",
+      "Bash(chmod *)",
+      "Bash(ln *)",
+      "Bash(wc *)",
+      "Bash(du *)",
+      "Bash(docker *)",
+      "Bash(notion-cli *)"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push -f *)"
+    ]
+  }
+}

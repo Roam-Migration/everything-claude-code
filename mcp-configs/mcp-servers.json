@@ -80,6 +80,16 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/your/projects"],
       "description": "Filesystem operations (set your path)"
+    },
+    "metabase": {
+      "command": "node",
+      "args": ["/path/to/everything-claude-code/mcp-servers/metabase/dist/index.js"],
+      "env": {
+        "METABASE_URL": "https://your-instance.metabaseapp.com",
+        "METABASE_API_KEY": "YOUR_METABASE_API_KEY",
+        "METABASE_DATABASE_ID": "34"
+      },
+      "description": "Metabase integration with SQL Server query validation. See mcp-servers/metabase/README.md"
     }
   },
   "_comments": {
