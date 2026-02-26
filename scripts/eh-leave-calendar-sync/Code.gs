@@ -14,7 +14,7 @@
  *   2. Run setupContractorSheet() once → copy the Sheet ID into CONFIG below
  *   3. Add contractor names to the "Contractors" tab (one per row, column A)
  *   4. Verify Aaron has write access to the contractor GCal (see README)
- *   5. Run createTrigger() once to register the 15-minute polling trigger
+ *   5. Run createTrigger() once to register the Mon–Fri 8 am/12 pm/5 pm triggers
  *   6. Authorise all permissions when prompted
  */
 
@@ -51,6 +51,13 @@ const CONFIG = {
  * Searches for unprocessed EH leave emails and syncs contractor events to GCal.
  */
 function processEHLeaveEmails() {
+  // Run on weekdays only — triggers fire daily so we exit early on weekends
+  const day = new Date().getDay(); // 0 = Sunday, 6 = Saturday
+  if (day === 0 || day === 6) {
+    console.log('Weekend — skipping.');
+    return;
+  }
+
   if (CONFIG.CONTRACTORS_SHEET_ID === 'REPLACE_WITH_YOUR_SHEET_ID') {
     console.error('CONFIG.CONTRACTORS_SHEET_ID is not set. Run setupContractorSheet() first.');
     return;
@@ -333,29 +340,37 @@ function setupContractorSheet() {
   console.log('Next steps:');
   console.log('  1. Replace CONFIG.CONTRACTORS_SHEET_ID with the ID above.');
   console.log('  2. Open the Sheet and add contractor full names to column A.');
-  console.log('  3. Run createTrigger() to start the 15-minute polling.');
+  console.log('  3. Run createTrigger() to start the Mon–Fri 8 am/12 pm/5 pm triggers.');
   console.log('─────────────────────────────────────────────────────');
 }
 
 /**
- * Run ONCE to register the 15-minute time trigger.
- * Safe to call multiple times — checks for an existing trigger first.
+ * Run ONCE to register three daily triggers: 8 am, 12 pm, 5 pm (Melbourne time).
+ * Triggers fire every day; the weekday guard at the top of processEHLeaveEmails()
+ * exits early on Saturday and Sunday.
+ * Safe to call multiple times — skips creation if 3 triggers already exist.
  */
 function createTrigger() {
-  const exists = ScriptApp.getProjectTriggers()
-    .some(t => t.getHandlerFunction() === 'processEHLeaveEmails');
+  const existingCount = ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'processEHLeaveEmails').length;
 
-  if (exists) {
-    console.log('Trigger already registered. No action taken.');
+  if (existingCount >= 3) {
+    console.log(`${existingCount} trigger(s) already registered. Run deleteTrigger() first to reconfigure.`);
     return;
   }
 
-  ScriptApp.newTrigger('processEHLeaveEmails')
-    .timeBased()
-    .everyMinutes(15)
-    .create();
+  const hours = [8, 12, 17]; // 8 am, 12 pm, 5 pm
+  for (const hour of hours) {
+    ScriptApp.newTrigger('processEHLeaveEmails')
+      .timeBased()
+      .atHour(hour)
+      .nearMinute(0)
+      .inTimezone('Australia/Melbourne')
+      .everyDays(1)
+      .create();
+  }
 
-  console.log('15-minute trigger registered for processEHLeaveEmails.');
+  console.log('Triggers created: 8 am, 12 pm, 5 pm Melbourne time (weekdays only via code guard).');
 }
 
 /**

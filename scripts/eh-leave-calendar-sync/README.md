@@ -14,7 +14,7 @@ calendar feed that is embedded in the intranet.
 EH sends "New leave calendar event for [Name]" to Aaron's Gmail
     │
     ▼
-Apps Script (runs every 15 min under Aaron's account)
+Apps Script (runs Mon–Fri at 8 am, 12 pm, 5 pm under Aaron's account)
     │
     ├─ Name not in Contractors sheet → label as processed, skip
     │
@@ -72,7 +72,7 @@ Apps Script (runs every 15 min under Aaron's account)
      - Read/write Google Sheets
 
 6. **Verify**
-   - The script will run every 15 minutes from now on
+   - The script will run Mon–Fri at 8 am, 12 pm, and 5 pm (Melbourne time)
    - Forward one existing EH leave email to Aaron (or wait for the next real one)
    - Check the **Log** tab in the Sheet for a `CREATED` or `SKIPPED` row
 
@@ -114,7 +114,7 @@ in the Sheet doesn't match the EH email subject exactly. Check:
 ## Troubleshooting
 
 **Script not running**
-- Check Apps Script → Triggers — the trigger should show `processEHLeaveEmails` every 15 min
+- Check Apps Script → Triggers — should show 3 `processEHLeaveEmails` triggers (8 am, 12 pm, 5 pm)
 - Re-run `createTrigger()` if it's missing
 
 **Calendar events not appearing**
