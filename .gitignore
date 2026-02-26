@@ -50,3 +50,6 @@ examples/sessions/*.tmp
 
 # Local drafts
 marketing/
+
+# Nested project repos (have their own git remotes)
+docs/projects/gull-force/
