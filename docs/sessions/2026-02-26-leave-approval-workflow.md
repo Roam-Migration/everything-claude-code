@@ -52,8 +52,15 @@ https://calendar.google.com/calendar/embed
 - Notes (optional)
 
 ### Role Behaviour
-- **Staff/Contractor**: see own requests only; can submit new requests
-- **Manager/Admin**: additionally see Pending Approvals section at top of page; can approve/reject with optional comment
+- **Contractor**: intranet leave form + My Leave Requests history table; requests visible to manager for approval
+- **Staff/Manager/Admin (employees)**: EH redirect card only (Submit Leave + View Balance links); no intranet form; no leave history table
+- **Manager/Admin**: additionally see Pending Approvals section at top of page regardless of employment type; can approve/reject contractor requests with optional comment
+
+### Employment Type Fork
+`isContractor = role === 'contractor'` drives two completely different content branches:
+- Contractor: full intranet request form + history table
+- Employee: two Employment Hero buttons + sync reminder ("EH approved leave syncs nightly to Metabase")
+- My Leave Requests section is `{isContractor && (...)}` — employees never see an empty table
 
 ### Post-Approval Process
 After approval in the intranet:
