@@ -107,12 +107,22 @@ Full-time staff (5.0/5.0 = 1.0): no change in behaviour.
 
 ---
 
+## Deprecation Notice
+
+**The intranet leave form was deprecated in the follow-on session.**
+See `docs/sessions/2026-02-26-eh-leave-calendar-sync.md` for full details.
+
+- All staff (employees + contractors) use Employment Hero for leave
+- LeavePage simplified to EH redirect buttons + policy info + calendar embed
+- Backend routes retained but unused by frontend
+- EH email → GCal sync now automated via Google Apps Script
+
 ## Outstanding Items
 
-1. **Leave approval process — post-approval reminder flow**: currently manual. Future: could auto-notify HR via email or Slack on approval.
+1. **Leave approval process — post-approval reminder flow**: now moot (no intranet form); EH handles approvals
 2. **GCal → Notion Meetings DB sync** — not yet built (separate task)
 3. **Country column cleanup** — Nabilah Amani and Shahrul Izwani candidates for MY; requires confirmation
-4. **Notion `NOTION_LEAVE_REQUESTS_DB_ID`** — not configured in backend env; Notion dual-write for leave requests is currently silently skipped. Create a Notion DB for leave requests and add the env var to `backend/cloudbuild.yaml` → `--update-secrets`.
+4. **Notion `NOTION_LEAVE_REQUESTS_DB_ID`** — not needed (form deprecated); close this out
 
 ---
 
