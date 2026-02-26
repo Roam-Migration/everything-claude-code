@@ -7,6 +7,16 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const i=JSON.parse(d);const cmd=(i.tool_input?.command||'').replace(/\\n/g,' ');const block=[/\\brm\\s+(-rf|-fr)\\s+([\\/~]|\\.\\.?[\\/\\s]|\\$HOME)/,/\\brm\\s+--no-preserve-root/,/\\bdrop\\s+(database|table|schema)\\b/i,/\\btruncate\\s+table\\b/i,/\\bdd\\s+if=/,/\\bmkfs\\b/];const warn=[/\\bgit\\s+reset\\s+--hard\\b/,/\\bchmod\\s+-R\\s+777\\s+\\//];const hit=block.find(p=>p.test(cmd));if(hit){process.stderr.write('[Hook] BLOCKED: Destructive command detected\\n[Hook] Pattern: '+hit+'\\n[Hook] Command: '+cmd.slice(0,120)+'\\n');process.exit(2)}const w=warn.find(p=>p.test(cmd));if(w){process.stderr.write('[Hook] WARNING: Potentially destructive: '+cmd.slice(0,80)+'\\n')}}catch{}process.stdout.write(d)})\""
+          }
+        ],
+        "description": "Block catastrophic Bash patterns (rm -rf /, DROP TABLE, dd, mkfs) and warn on risky ones (git reset --hard, chmod -R 777 /)"
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
             "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const i=JSON.parse(d);const cmd=i.tool_input?.command||'';if(process.platform!=='win32'&&/(npm run dev\\b|pnpm( run)? dev\\b|yarn dev\\b|bun run dev\\b)/.test(cmd)){console.error('[Hook] BLOCKED: Dev server must run in tmux for log access');console.error('[Hook] Use: tmux new-session -d -s dev \\\"npm run dev\\\"');console.error('[Hook] Then: tmux attach -t dev');process.exit(2)}}catch{}console.log(d)})\""
           }
         ],
