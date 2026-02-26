@@ -103,44 +103,52 @@ function processMessage(message, contractors, cal) {
 
   if (!subject.startsWith(CONFIG.SUBJECT_PREFIX)) return;
 
-  const name = subject.substring(CONFIG.SUBJECT_PREFIX.length).trim();
+  const emailName = subject.substring(CONFIG.SUBJECT_PREFIX.length).trim();
 
-  // ── Skip employees ────────────────────────────────────────────────────────
-  // EH already syncs their leave to the EH calendar feed embedded in the intranet.
-  if (!contractors.has(name)) {
-    console.log(`Skip: "${name}" is not in the contractor list.`);
-    logRow('SKIPPED', name, '', '', 'Not in contractor list — employee or name mismatch');
+  // ── Match against contractor roster (fuzzy prefix) ────────────────────────
+  // EH sends names inconsistently: sometimes first name only ("nabilah"),
+  // sometimes full name ("nabilah amani"). findContractor() handles both.
+  const matchedName = findContractor(emailName, contractors);
+
+  if (!matchedName) {
+    console.log(`Skip: "${emailName}" — no contractor match (employee or unrecognised name).`);
+    logRow('SKIPPED', emailName, '', '', 'No contractor match — employee or name not in roster');
     return;
   }
+
+  const displayName = matchedName !== emailName
+    ? `${matchedName} (email: "${emailName}")`
+    : matchedName;
 
   // ── Parse ICS attachment ──────────────────────────────────────────────────
   const icsText = getICSAttachment(message);
   if (!icsText) {
-    console.warn(`No ICS attachment found for "${name}".`);
-    logRow('ERROR', name, '', '', 'No .ics attachment in email');
+    console.warn(`No ICS attachment found for "${displayName}".`);
+    logRow('ERROR', matchedName, '', '', `No .ics attachment — email name was "${emailName}"`);
     return;
   }
 
   const event = parseICS(icsText);
   if (!event) {
-    console.warn(`ICS parse failed for "${name}".`);
-    logRow('ERROR', name, '', '', 'Failed to parse DTSTART/DTEND from ICS');
+    console.warn(`ICS parse failed for "${displayName}".`);
+    logRow('ERROR', matchedName, '', '', 'Failed to parse DTSTART/DTEND from ICS');
     return;
   }
 
   // ── Duplicate guard ───────────────────────────────────────────────────────
-  // Checks the contractor GCal for an existing event in the same window
-  // that already contains this person's name in the title.
-  if (isDuplicate(cal, name, event.start, event.end)) {
-    console.log(`Duplicate: "${name}" already has an event ${fmtDate(event.start)}–${fmtDate(event.end)}.`);
-    logRow('DUPLICATE', name, fmtDate(event.start), fmtDate(event.end), event.summary || '');
+  // Use the canonical roster name so duplicates are caught regardless of
+  // whether the email came through as "nabilah" or "nabilah amani".
+  if (isDuplicate(cal, matchedName, event.start, event.end)) {
+    console.log(`Duplicate: "${matchedName}" already has an event ${fmtDate(event.start)}–${fmtDate(event.end)}.`);
+    logRow('DUPLICATE', matchedName, fmtDate(event.start), fmtDate(event.end), event.summary || '');
     return;
   }
 
   // ── Create calendar event ─────────────────────────────────────────────────
   // ICS DTEND for all-day events is exclusive (day after last leave day).
   // Apps Script createAllDayEvent endDate is also exclusive — pass DTEND directly.
-  const title = event.summary || `${name} – Leave`;
+  // Always use the canonical roster name in the title for consistency.
+  const title = event.summary || `${matchedName} – Leave`;
   const isSingleDay = (event.end - event.start) <= 86400000; // ≤ 1 day in ms
 
   if (isSingleDay) {
@@ -150,7 +158,7 @@ function processMessage(message, contractors, cal) {
   }
 
   console.log(`Created: "${title}" ${fmtDate(event.start)}–${fmtDate(event.end)}`);
-  logRow('CREATED', name, fmtDate(event.start), fmtDate(event.end), title);
+  logRow('CREATED', matchedName, fmtDate(event.start), fmtDate(event.end), title);
 }
 
 // ─── ICS parsing ─────────────────────────────────────────────────────────────
@@ -246,7 +254,7 @@ function isDuplicate(cal, name, start, end) {
 
 /**
  * Reads the contractor names from column A of the Contractors tab (skips header).
- * Returns a Set<string> for O(1) lookup.
+ * Returns an Array<string> of canonical full names for fuzzy matching.
  */
 function getContractorNames() {
   const ss    = SpreadsheetApp.openById(CONFIG.CONTRACTORS_SHEET_ID);
@@ -257,18 +265,46 @@ function getContractorNames() {
   }
 
   const lastRow = sheet.getLastRow();
-  if (lastRow < 2) return new Set(); // Header only — no contractors configured
+  if (lastRow < 2) return [];
 
   const values = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
-  const names  = new Set();
+  const names  = [];
 
   for (const [name] of values) {
     const trimmed = name?.toString().trim();
-    if (trimmed) names.add(trimmed);
+    if (trimmed) names.push(trimmed);
   }
 
-  console.log(`Loaded ${names.size} contractor name(s): ${[...names].join(', ')}`);
+  console.log(`Loaded ${names.length} contractor name(s): ${names.join(', ')}`);
   return names;
+}
+
+/**
+ * Fuzzy-matches an email name against the contractor roster.
+ *
+ * EH sends names inconsistently — sometimes first name only ("nabilah"),
+ * sometimes full name ("nabilah amani"). This handles both by checking
+ * word-boundary prefixes in both directions.
+ *
+ * Examples:
+ *   "nabilah"        matches "Nabilah Amani"      (email is first-name prefix)
+ *   "nabilah amani"  matches "Nabilah Amani"      (exact, case-insensitive)
+ *   "vikneswaran"    matches "Vikneswaran Khetre"  (email is first-name prefix)
+ *
+ * Returns the canonical roster name (as entered in the Sheet), or null.
+ */
+function findContractor(emailName, contractors) {
+  const query = emailName.toLowerCase().trim();
+
+  for (const fullName of contractors) {
+    const stored = fullName.toLowerCase().trim();
+
+    if (stored === query) return fullName;                     // exact match
+    if (stored.startsWith(query + ' ')) return fullName;      // email is first-name only
+    if (query.startsWith(stored + ' ')) return fullName;      // roster has fewer words (unusual)
+  }
+
+  return null;
 }
 
 // ─── Gmail label ─────────────────────────────────────────────────────────────
