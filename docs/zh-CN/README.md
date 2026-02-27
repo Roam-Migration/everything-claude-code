@@ -456,6 +456,7 @@ Duplicate hooks file detected: ./hooks/hooks.json resolves to already-loaded fil
 > git clone https://github.com/affaan-m/everything-claude-code.git
 >
 > # 选项 A：用户级规则（适用于所有项目）
+> mkdir -p ~/.claude/rules
 > cp -r everything-claude-code/rules/common/* ~/.claude/rules/
 > cp -r everything-claude-code/rules/typescript/* ~/.claude/rules/   # 选择您的技术栈
 > cp -r everything-claude-code/rules/python/* ~/.claude/rules/
@@ -784,7 +785,7 @@ npm install ecc-universal
 * **详细指南 (进阶):** [Claude Code 万事详细指南](https://x.com/affaanmustafa/status/2014040193557471352)
 * **关注:** [@affaanmustafa](https://x.com/affaanmustafa)
 * **zenith.chat:** [zenith.chat](https://zenith.chat)
-* **技能目录:** [awesome-agent-skills](https://github.com/JackyST0/awesome-agent-skills)
+* **技能目录:** awesome-agent-skills（社区维护的智能体技能目录）
 
 ***
 
