@@ -47,7 +47,25 @@ The SQL table feeds the **Metabase working-days formula**. The **intranet calend
 
 **Commit:** `2f5f6a6` on `troubleshoot/notion-integration`
 
-**Pending:** Frontend deploy required to go live:
+**Colour scheme added:** AU holidays display in green (`#0B8043`), MY holidays in orange (`#F4511E`). The `color` parameter in a GCal embed URL applies to the **immediately preceding** `src` parameter — ordering matters.
+
+Final embed URL pattern:
+```
+https://calendar.google.com/calendar/embed
+  ?src=j2gm8g6u0rp038bn2j4oee5ha107el40%40import.calendar.google.com
+  &src=c_780037334b62950858dce88ea7dbdd73803a28349bbb9a3d6a71cdc972a17837%40group.calendar.google.com
+  &src=en.australian%23holiday%40group.v.calendar.google.com&color=%230B8043
+  &src=en-gb.malaysia%23holiday%40group.v.calendar.google.com&color=%23F4511E
+  &ctz=Australia%2FMelbourne&showTitle=0&showPrint=0&showTabs=1&showCalendars=1
+```
+
+**Deploys completed:**
+| Commit | Description |
+|--------|-------------|
+| `114120b` | Add AU/MY public holiday calendar sources to all three embeds |
+| `604a4f5` | Add colour scheme (green AU, orange MY) |
+
+Both deployed via:
 ```bash
 cd /tmp/Rmlintranetdesign
 gcloud builds submit --config=cloudbuild.yaml --project=rmlintranet --quiet
@@ -146,7 +164,7 @@ The token file is at `~/.config/google-drive-mcp/tokens.json`. The script refres
 
 ## Outstanding Items
 
-1. **Deploy intranet frontend** — public holiday embed changes are committed but not deployed
+1. ~~**Deploy intranet frontend**~~ — **DONE** (commits `114120b` and `604a4f5`, both deployed this session)
 2. **Confirm Noor, Martin, Alex** — unknown whether these are contractors or employees; if contractors, add to `CONTRACTOR_MAP` and re-run script
 3. **Add Shahrul + Amani to Apps Script roster** — the `Code.gs` contractor roster sheet in Aaron's Google Drive needs these two names added so future EH leave emails for them are auto-processed
 4. **Jul–Dec 2026 import** — once the schedule sheet for H2 is available, run the import script with updated `TABS`
