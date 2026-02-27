@@ -196,6 +196,52 @@ cp .claude/settings.example.json .claude/settings.json
 2. Reference `docs/notion-integration.md` for schemas
 3. Claude Browser creates tasks via MCP
 
+### RML Ops Prompts
+
+**Location:** `prompts/rml-ops/`
+
+Standardized prompts that enforce consistent Claude Code behavior across all developers. Reference them explicitly in your session to ensure Claude follows RML patterns.
+
+| Prompt | Use When |
+|--------|----------|
+| `project-init.md` | Starting a new RML internal app |
+| `deploy-to-gcp.md` | Deploying to Google Cloud Run |
+| `component-generation.md` | Creating new React components |
+| `security-audit.md` | Before deploying to production |
+| `troubleshoot-iap.md` | Debugging IAP 403 / redirect errors |
+| `add-shared-component.md` | Adding to `@roam-migration/components` |
+
+**Usage:**
+```
+@claude, follow the instructions in prompts/rml-ops/deploy-to-gcp.md
+```
+
+See: `prompts/rml-ops/README.md`
+
+### GCP Deployment Templates
+
+**Location:** `templates/deployment/`
+
+Copy-paste Cloud Run configurations for RML apps. Avoids repeating deployment setup from scratch.
+
+**Templates:**
+- `vite-react-spa/` - Dockerfile, nginx.conf, cloudbuild.yaml, deploy.sh for Vite/React SPAs
+- `nextjs-ssr/` - Dockerfile, cloudbuild.yaml, deploy.sh for Next.js SSR apps
+
+**Scripts:**
+- `scripts/setup-iap.sh` - Configure IAP + Google Workspace SSO
+- `scripts/map-domain.sh` - Map custom domain, provision SSL
+- `scripts/rollback.sh` - Roll back to a previous Cloud Run revision
+
+**Quick start:**
+```bash
+cp -r templates/deployment/vite-react-spa/* /path/to/your-app/
+cd /path/to/your-app
+./deploy.sh --service=your-app-name
+```
+
+See: `templates/deployment/README.md`
+
 ---
 
 ## Repository Structure
@@ -222,6 +268,10 @@ everything-claude-code/
 │   ├── notion-integration.md       # Notion schemas
 │   └── team-sync-guide.md         # Team collaboration
 ├── prompts/                        # Prompt templates
+│   └── rml-ops/                    # 6 standardized RML Claude Code prompts
+├── templates/
+│   └── deployment/                 # GCP Cloud Run templates (Vite SPA, Next.js SSR)
+│       └── scripts/                # setup-iap.sh, map-domain.sh, rollback.sh
 ├── scripts/
 │   ├── setup-team-environment.js   # Onboarding automation
 │   └── verify-environment.js       # Environment validation
