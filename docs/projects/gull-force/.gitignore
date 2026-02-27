@@ -1,0 +1,16 @@
+# Scraped content and media — too large for git, sync separately
+content/
+
+# Plugin zips — not tracked in git
+*.zip
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/

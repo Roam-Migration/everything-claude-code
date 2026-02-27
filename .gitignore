@@ -52,4 +52,5 @@ examples/sessions/*.tmp
 marketing/
 
 # Nested project repos (have their own git remotes)
-docs/projects/gull-force/
+# gull-force: exclude large media/content only; docs tracked via local .gitignore
+docs/projects/gull-force/content/
