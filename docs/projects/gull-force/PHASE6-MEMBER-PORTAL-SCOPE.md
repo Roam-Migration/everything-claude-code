@@ -18,22 +18,29 @@
 
 These must never be conflated. The portal adds a WP User layer. A descendant who joins the Association may optionally link their account to an ancestor's `gf_member` post, but they are not the same entity.
 
-### Current Membership Model (from live site)
+### Confirmed Membership Model
 
 | Product | Price | Type | Delivery |
 |---------|-------|------|---------|
-| Life Membership | $35.00 (incl. lapel pin) | One-time | Physical pin + member status |
-| Newsletter Subscription | $20.00 / 2 years | Recurring (2yr) | Posted physical copy |
+| **Life Membership** | **$50.00 AUD** | One-time, no renewal | Full member area + newsletter access + lapel pin |
 
-**Current process:** Manual — postal form, bank transfer, committee approval. No online component.
+Newsletter access is **included in life membership** — no separate subscription tier.
+
+**Current process:** Manual — postal form, bank transfer. No online component.
+**Confirmed decisions:**
+- Single tier only (life membership)
+- Auto-approval on payment receipt — no committee review step
+- PayPal and direct bank deposit (BACS) payment options — no Stripe
+- Multiple back-issue newsletters available as PDFs (ready to upload at launch)
+- Potential Phase 7: forum, committee meeting notes, member voting
 
 ### What This Phase Adds
 
-1. Online membership registration + payment
-2. Digital member login portal with access to member-only content
-3. Newsletter archive (PDF) accessible to subscribers/members
-4. Membership status and expiry tracking in WP admin
-5. Automated renewal reminders (newsletter subscription)
+1. Online membership registration + payment (PayPal or bank deposit)
+2. Branded member login portal
+3. Newsletter archive (all back-issues as PDFs) — members-only
+4. Membership status tracking in WP admin
+5. Admin notification on new bank transfer orders (to prompt manual confirmation)
 6. Optional: family story submission linked to veteran profiles
 
 ---
@@ -79,57 +86,65 @@ Use WP's built-in password reset flow, styled with the site theme. A custom "For
 
 ### B. Member Registration & Payment Flow
 
-#### B1. Membership Products in WooCommerce
+#### B1. Membership Product in WooCommerce
 
-Three new WooCommerce products (WooCommerce already active for Memorabilia):
+One new WooCommerce product (WooCommerce already active for Memorabilia):
 
 | Product | Price | Type | WC Product Type |
 |---------|-------|------|----------------|
-| Life Membership | $35.00 | One-time (includes lapel pin) | Simple product |
-| Newsletter Subscription | $20.00 | 2-year access | Simple product (manual renewal) |
-| Life Membership + Newsletter | $50.00 | Bundle | Grouped/bundled product |
+| **Life Membership** | **$50.00 AUD** | One-time (includes lapel pin + full member access) | Simple product |
 
-**Note on WC Subscriptions plugin:** Given the newsletter is 2-year (not monthly/annually auto-billing), WooCommerce Subscriptions ($199/yr) is overkill. Manage renewal manually or with a lightweight approach: set expiry date on purchase, send reminder email at 60 days before expiry via WP Cron.
+No subscription tiers, no renewal products, no WooCommerce Subscriptions plugin needed. Single purchase → permanent access. Admin manually notes lapel pin dispatch via the `gf_lapel_pin_sent` user meta flag.
 
 #### B2. Registration Flow
 
 ```
 /join/ page:
 
-Step 1 — Choose membership type
-  [ ] Life Membership — $35 (includes lapel pin + member area access)
-  [ ] Newsletter Subscription — $20/2 years (newsletter archive + posted copy)
-  [ ] Both — $50
+Step 1 — Summary
+  "Life Membership — $50.00 AUD"
+  "Full access to newsletter archive, member area, and lapel pin"
+  [Join Now] button → WooCommerce checkout
 
-Step 2 — Create account
+Step 2 — Create account (at WC checkout)
   Full name | Email | Password
-  (If already have account: "Log in instead →")
+  (Already a member? Log in →)
 
 Step 3 — Payment
-  WooCommerce checkout — Stripe or PayPal
+  ( ) PayPal
+  ( ) Bank Deposit (BSB + account shown on confirmation page)
+
+  If PayPal → redirect to PayPal → return with payment confirmed → instant activation
+  If Bank Deposit → order placed as "on-hold" → admin receives email notification →
+    admin marks order "Complete" when transfer received → activation triggers
 
 Step 4 — Confirmation
   "Welcome to Gull Force Association"
-  Check email for account details
+  Login details sent to [email]
   → [Go to Member Area]
 ```
 
 **Account creation:** Hook into WooCommerce `woocommerce_order_status_completed` to:
 1. Create WP user (if not existing) with role `gf_association_member`
 2. Set membership meta fields (see Section D)
-3. Send welcome email
+3. Send welcome email with login link
 
-#### B3. Payment Gateway
+**Auto-approval:** No committee review step. Payment receipt = instant membership activation (PayPal: automatic; bank deposit: when admin marks order complete).
 
-**Recommended: Stripe** via WooCommerce Stripe plugin (free)
-- Lower transaction fees than PayPal in Australia
-- Better UX (no PayPal redirect)
-- Card details stay on checkout page
-- Stripe dashboard for admin payment management
+#### B3. Payment Gateways
 
-**Alternative: PayPal** — simpler setup, lower trust barrier for older demographics (target audience skews older)
+**Both use WooCommerce core or free plugins — no gateway plugin licence costs.**
 
-**Decision for client:** Given the target demographic (descendants of WWII vets, likely older), PayPal may have higher conversion rate due to familiarity. Recommend offering both.
+| Gateway | Plugin | Transaction Cost | Notes |
+|---------|--------|-----------------|-------|
+| **PayPal Standard** | WooCommerce PayPal Payments (free) | ~2.6% + $0.30 AUD | Redirect to PayPal site; familiar to older demographic; auto-confirms payment |
+| **Bank Deposit (BACS)** | Built into WooCommerce core | $0 — no fees | Manual: member transfers $50; admin marks order complete; activation triggers |
+
+**Why not Stripe:** Higher setup friction (requires business ABN verification, credit card handling compliance). For a small heritage association processing a handful of memberships per year, the zero-fee bank deposit option will likely be most-used anyway.
+
+**Bank deposit account details** (to display at WC checkout and confirmation email):
+- BSB, Account Number, Account Name — supplied by client at implementation time
+- Reference format: `GF-[order-number]` (allows admin to match transfers in banking app)
 
 ---
 
@@ -173,75 +188,48 @@ All stored on the WP User object via `update_user_meta()`:
 
 | Meta Key | Type | Description |
 |----------|------|-------------|
-| `gf_membership_status` | string | `active` / `lapsed` / `pending` / `honorary` |
-| `gf_membership_type` | string | `life` / `newsletter` / `both` / `honorary` |
-| `gf_membership_joined` | date (Y-m-d) | Date membership was activated |
-| `gf_newsletter_expiry` | date (Y-m-d) | NULL for life members; set for newsletter subscribers |
-| `gf_newsletter_posted` | boolean | Whether they receive a physical posted copy |
-| `gf_lapel_pin_sent` | boolean | Admin tracks physical delivery of membership pin |
-| `gf_linked_veteran` | post ID | Optional: links to a `gf_member` post (ancestor) |
+| `gf_membership_status` | string | `active` / `pending` / `honorary` / `suspended` |
+| `gf_membership_joined` | date (Y-m-d) | Date membership was activated (order completed) |
+| `gf_wc_order_id` | int | WooCommerce order ID that activated the membership |
+| `gf_lapel_pin_sent` | boolean | Admin checkbox: physical pin dispatched |
+| `gf_linked_veteran` | post ID | Optional: links account to a `gf_member` CPT post (ancestor) |
 | `gf_member_number` | string | Sequential member number (e.g. GF-0247) |
-| `gf_admin_notes` | text | Committee notes (admin-only) |
+| `gf_admin_notes` | text | Committee notes (admin-only, not visible to member) |
+
+No expiry date field — life membership never lapses. `pending` status is used only for bank deposit orders awaiting payment confirmation; `active` is set when the WC order reaches `completed`.
 
 #### D2. Membership Status Logic
 
 ```
-Life Member:
+Active (life member):
   gf_membership_status = 'active'
-  gf_membership_type   = 'life'
-  gf_newsletter_expiry = NULL
-  → Never expires; always has member area access
+  → Set on woocommerce_order_status_completed hook
+  → Never expires; no WP Cron required
 
-Newsletter Subscriber:
-  gf_membership_status = 'active'
-  gf_membership_type   = 'newsletter'
-  gf_newsletter_expiry = '2028-02-28' (2 years from purchase)
-  → Expires; needs renewal; loses newsletter access on expiry
+Pending (bank deposit not yet confirmed):
+  gf_membership_status = 'pending'
+  → Set on woocommerce_order_status_on-hold hook (BACS orders start here)
+  → Admin receives email: "New bank transfer membership order #NNN — mark complete when payment received"
+  → Admin marks WC order Complete → triggers 'active' transition
 
-Both:
-  gf_membership_status = 'active'
-  gf_membership_type   = 'both'
-  gf_newsletter_expiry = '2028-02-28'
-  → Member area always accessible; newsletter access expires
+Honorary:
+  gf_membership_status = 'honorary'
+  → Set manually by admin (committee members, dignitaries)
+  → Full access, $0 cost, no WC order required
 
-Lapsed:
-  gf_membership_status = 'lapsed'
-  → Triggered by WP Cron when gf_newsletter_expiry < today()
-  → Loses newsletter access; member area shows "Renew" prompt
+Suspended:
+  gf_membership_status = 'suspended'
+  → Set manually by admin only
+  → Loses member area access; sees "Contact the Association" message
 ```
 
-#### D3. Automated Expiry (WP Cron)
+#### D3. No Automated Expiry Required
 
-```php
-// Scheduled daily: check all newsletter subscribers for expiry
-function gf_check_membership_expiry() {
-    $users = get_users([
-        'meta_key'     => 'gf_membership_type',
-        'meta_value'   => ['newsletter', 'both'],
-        'compare'      => 'IN',
-        'meta_compare' => 'IN',
-    ]);
-    foreach ($users as $user) {
-        $expiry = get_user_meta($user->ID, 'gf_newsletter_expiry', true);
-        if ($expiry && strtotime($expiry) < time()) {
-            update_user_meta($user->ID, 'gf_membership_status', 'lapsed');
-        }
-    }
-}
-add_action('gf_daily_membership_check', 'gf_check_membership_expiry');
-if (!wp_next_scheduled('gf_daily_membership_check')) {
-    wp_schedule_event(time(), 'daily', 'gf_daily_membership_check');
-}
-```
+Since all memberships are lifetime, no WP Cron expiry checking is needed. The only automated hooks are:
+- `woocommerce_order_status_on-hold` → set status `pending`, send admin notification
+- `woocommerce_order_status_completed` → set status `active`, send member welcome email
 
-#### D4. Renewal Reminder Emails
-
-Two automated emails via `wp_mail()`:
-- **60 days before expiry:** "Your Gull Force newsletter subscription expires in 60 days"
-- **7 days before expiry:** "Your Gull Force newsletter subscription expires in 7 days"
-- **Day of expiry:** "Your subscription has expired — renew to continue access"
-
-All styled with WP's email framework or a simple HTML template.
+This eliminates an entire class of complexity compared to subscription-based models.
 
 ---
 
@@ -278,24 +266,26 @@ if (get_field('newsletter_member_only') && !gf_current_user_has_newsletter_acces
 #### E2. Access Gating Function
 
 ```php
-function gf_current_user_has_newsletter_access(): bool {
+function gf_current_user_is_member(): bool {
     if (!is_user_logged_in()) return false;
-    $user_id = get_current_user_id();
-    $status  = get_user_meta($user_id, 'gf_membership_status', true);
-    $type    = get_user_meta($user_id, 'gf_membership_type', true);
-    if ($status !== 'active') return false;
-    return in_array($type, ['life', 'newsletter', 'both', 'honorary'], true);
+    $status = get_user_meta(get_current_user_id(), 'gf_membership_status', true);
+    return in_array($status, ['active', 'honorary'], true);
 }
 ```
 
-#### E3. Additional Protected Content (Optional)
+Single function, single concept — active life member or honorary. `pending` and `suspended` are not granted access.
 
-Content that could be member-gated in future:
-- Historical documents / full-length PDFs (currently public)
+#### E3. Additional Protected Content (Optional — Phase 6+)
+
+Content that could be member-gated:
 - Family story submission form (see Section F)
 - Member directory (opt-in: members can choose to list their contact details to other members)
 
 Recommend keeping most content **public** — the site's mission is education and commemoration, not exclusivity. Gate only newsletters and family submissions.
+
+#### E4. Newsletter Back-Issues at Launch
+
+Multiple back-issues confirmed available as PDFs. At launch, these are batch-imported as `gf_newsletter` posts — one per issue. No scraping required; admin uploads each PDF via the WP media library and creates the post in WC admin. A bulk import script (`scripts/import-newsletters.php`) can ingest a folder of PDFs if the client supplies them as files rather than one-by-one.
 
 ---
 
@@ -373,15 +363,14 @@ The Association almost certainly has an existing member list (spreadsheet or pap
 
 This keeps the plugin count low, gives full control, has no ongoing plugin licence costs, and is the right size for a small heritage association.
 
-### Payment Gateway
+### Payment Gateways
 
-| Gateway | Transaction Fee | Setup | UX |
-|---------|----------------|-------|-----|
-| **Stripe** | 1.7% + 30c (AUD) | Medium — business verification | Inline form, best UX |
-| **PayPal** | ~2.6% + 30c | Easier — existing account | Redirect to PayPal site |
-| **Square** | 1.9% + 10c | Medium | Less known |
+| Gateway | Plugin | Cost |
+|---------|--------|------|
+| **PayPal Standard** | WooCommerce PayPal Payments (free) | ~2.6% + $0.30 per transaction |
+| **Bank Deposit (BACS)** | WooCommerce core (built-in, zero config) | $0 — no transaction fees |
 
-**Recommendation:** Offer both Stripe and PayPal. Stripe as primary (lower fees). PayPal as fallback (higher comfort for older demographic). Both have free WooCommerce plugins.
+No Stripe. WooCommerce's built-in BACS gateway handles bank transfer with zero plugin cost — admin receives email when a bank transfer order is placed and manually completes it when payment arrives. For a small association processing ~10–20 new memberships per year, this is the right cost structure.
 
 ### WP User Role
 
@@ -419,11 +408,9 @@ WordPress User (role: gf_association_member)
   ├── Standard WP fields: display_name, user_email, user_registered
   └── User meta:
        ├── gf_member_number          → "GF-0247"
-       ├── gf_membership_status      → "active" | "lapsed" | "pending" | "honorary"
-       ├── gf_membership_type        → "life" | "newsletter" | "both" | "honorary"
+       ├── gf_membership_status      → "active" | "pending" | "honorary" | "suspended"
        ├── gf_membership_joined      → "2026-02-28"
-       ├── gf_newsletter_expiry      → "2028-02-28" | NULL
-       ├── gf_newsletter_posted      → true | false
+       ├── gf_wc_order_id            → 1042 (WooCommerce order reference)
        ├── gf_lapel_pin_sent         → true | false
        ├── gf_linked_veteran         → post ID (gf_member CPT) | NULL
        └── gf_admin_notes            → text
@@ -435,9 +422,9 @@ gf_newsletter CPT (new)
        ├── newsletter_issue          → "Issue 47"
        ├── newsletter_date           → "2024-12-01"
        ├── newsletter_pdf            → attachment ID
-       ├── newsletter_summary        → public teaser
-       ├── newsletter_thumbnail      → attachment ID
-       └── newsletter_member_only    → true | false
+       ├── newsletter_summary        → public teaser (SEO-visible)
+       ├── newsletter_thumbnail      → attachment ID (cover page preview)
+       └── newsletter_member_only    → true | false (some historical issues may be public)
 ```
 
 ---
@@ -476,107 +463,132 @@ gf_newsletter CPT (new)
 | Linked veteran on member profile | 2 | Personal connection to history |
 | Family story submission form | 5 | Community content contribution |
 | Member number auto-generation (sequential GF-XXXX) | 2 | Admin QOL |
-| Postal copy tracking (lapel pin, newsletters) | 3 | Admin QOL |
+| Lapel pin dispatch notification email (with postal address) | 2 | Admin QOL |
+| Bulk newsletter import script (folder of PDFs → CPT posts) | 3 | Launch efficiency |
 
-### Won't Have (Out of Scope)
+### Won't Have (Phase 6) — Flagged for Phase 7
 
-| Feature | Reason |
-|---------|--------|
+| Feature | Reason / Phase 7 Notes |
+|---------|------------------------|
+| Member forum / discussion board | **Phase 7** — bbPress (free) integrates cleanly with WP User roles; members-only board gated by `gf_association_member` role |
+| Committee meeting notes section | **Phase 7** — protected page or `gf_meeting_notes` CPT; restricted to `gf_committee` role |
+| Member voting | **Phase 7** — requires defining vote scope (AGM motions? Content decisions?). Plugin: WP-Polls or custom ACF repeater vote form |
+| Annual membership tier | By design decision — life membership only |
 | Automated physical mail dispatch | Requires fulfilment integration |
-| Online discussion forum | Moderation cost too high for small team |
 | Mobile app | Not justified for membership size |
-| CWGC / external data sync | External dependency |
 
 ---
 
 ## 6. Effort Estimates
 
-| Feature | Story Points |
-|---------|-------------|
-| WC membership products + checkout | 2 |
-| WC order hook → user creation + meta | 3 |
-| Custom login page + WP redirects | 2 |
-| User role + capability registration | 1 |
-| `gf_newsletter` CPT + ACF field group | 3 |
-| Newsletter archive page + access gating | 3 |
-| Member dashboard shortcode | 3 |
-| Admin user list columns + meta box | 5 |
-| WP Cron expiry + status automation | 2 |
-| Renewal reminder email triggers | 3 |
-| Bulk import script | 3 |
-| Nav login/logout integration | 2 |
+| Feature | Story Points | Notes |
+|---------|-------------|-------|
+| Single WC membership product ($50) | 1 | Simpler than 3-tier model |
+| WC order hooks → user creation + meta (PayPal + BACS paths) | 3 | Two status transitions to handle |
+| Custom login page + WP redirects | 2 | `/member-login/` branded page |
+| User role + capability registration | 1 | `gf_association_member` role |
+| `gf_newsletter` CPT + ACF field group | 3 | |
+| Newsletter archive page + `gf_current_user_is_member()` gate | 3 | Public teaser / member download |
+| Member dashboard shortcode | 3 | Status, joined date, newsletter link |
+| Admin user list columns + membership meta box | 5 | User table + edit screen meta box |
+| Admin notification email for BACS orders | 1 | WC order email hook |
+| Welcome email on activation | 1 | Login link + membership details |
+| Bulk member import script (CSV) | 3 | For existing member list |
+| Nav login/logout conditional display | 2 | |
 
-**Phase 6 Core (Must Have):** ~27 points
-**Phase 6 Full (Must + Should):** ~37 points
+**Phase 6 Core (Must Have):** ~24 points
+**Phase 6 Full (+ bulk import, nav, welcome email):** ~28 points
+
+**Complexity reduction vs original scope:** ~9 points saved by removing newsletter expiry, renewal emails, WP Cron, and subscription tier logic.
 
 ---
 
 ## 7. Questions for Client (Pre-Implementation)
 
-Before development begins, these decisions must be made by the Association committee:
+Resolved decisions are noted. Only open items remain.
 
-### Membership Model
-1. **Life membership only, or introduce annual membership?** The current $35 life structure is simple to implement. Annual ($20–$25/yr) creates recurring revenue but requires subscription handling.
-2. **Honorary membership** — do committee members or dignitaries get free access? If yes, admin can manually set `gf_membership_type = 'honorary'`.
-3. **Existing members** — is there a current member list (spreadsheet) to import? Names, emails, joining dates?
+### Resolved
+- ~~Life or annual membership?~~ → **Life membership only, $50 AUD**
+- ~~Stripe?~~ → **No Stripe — PayPal + bank deposit**
+- ~~Auto-approval or committee review?~~ → **Auto-approval on payment**
+- ~~Back-issues available?~~ → **Yes — multiple PDFs ready to upload**
 
-### Registration Process
-4. **Open registration or admin approval?** Self-service (pay → instant access) is simpler. Committee-approved (pay → pending → committee approves → access) is safer but adds admin overhead.
-5. **Membership number series** — does the Association have existing member numbers to preserve?
+### Still Open
 
-### Newsletter
-6. **How many back-issues exist as PDFs?** All uploaded as `gf_newsletter` posts on launch.
-7. **Should some newsletters be public?** E.g. oldest issues (pre-2000) could be freely available for researchers.
-8. **Posted physical copies** — does the Association still mail physical copies to subscribers? If so, admin needs to track `gf_newsletter_posted` per member and generate a mailing list.
+1. **Existing member list** — Is there a spreadsheet of current members? If yes, supply CSV (`first_name, last_name, email, joined_date`) for bulk import as WP users with `active` status. Avoids asking existing members to re-register.
 
-### Payment
-9. **Does the Association have a Stripe account?** If not, they need to create one (requires ABN). PayPal is simpler if they have an existing account.
-10. **AUD pricing** — confirm $35 / $20 are still current (from legacy site, possibly outdated).
+2. **Membership number series** — Does the Association have existing sequential member numbers (GF-XXXX format)? If so, supply with the member CSV above to preserve continuity. If not, auto-generate from next available number.
 
-### Content Governance
-11. **Who uploads new newsletters?** Needs training on the `gf_newsletter` admin screen.
-12. **Committee management** — who can manage the member list in WP admin? Standard `administrator` role, or a restricted `membership_admin` role?
+3. **Honorary members** — Are there committee members or dignitaries who should have free access? If yes, list their emails — admin will set `gf_membership_status = 'honorary'` manually.
+
+4. **Newsletter public/private split** — Should any back-issues be made publicly accessible (e.g. oldest issues for research purposes)? Or all member-only?
+
+5. **Bank deposit account details** — BSB, account number, account name for display at checkout.
+
+6. **PayPal account** — Does the Association have an existing PayPal Business account, or does one need to be created?
+
+7. **Who manages members in WP admin?** Standard `administrator` role, or should a restricted `gf_committee` role be created with access only to membership management (not full site admin)?
+
+8. **Lapel pin fulfilment** — When a new member orders, who packages and sends the pin? Does the admin need a "new membership orders" notification email with the postal address?
 
 ---
 
 ## 8. Implementation Order (Suggested Sprint)
 
 ### Sprint 1 — Foundation (Day 1)
-1. Register `gf_association_member` WP role + capabilities (1pt)
-2. Create 3 WC membership products (2pt)
-3. WC order completion hook → create user + set membership meta (3pt)
-4. Custom login page at `/member-login/` (2pt)
+1. Register `gf_association_member` WP role + `gf_view_newsletters` capability (1pt)
+2. Single WC Life Membership product — $50 AUD (1pt)
+3. Configure WC PayPal Payments + BACS gateway with bank details (1pt)
+4. WC order hooks: `on-hold` → set `pending` + admin email; `completed` → set `active` + welcome email (3pt)
+5. Custom login page at `/member-login/` + redirect from `/wp-login.php` (2pt)
 
 ### Sprint 2 — Member Content (Day 2)
-5. `gf_newsletter` CPT + ACF field group (3pt)
-6. Newsletter archive page with public teaser / member full access gating (3pt)
-7. Member dashboard page + shortcode (3pt)
+6. `gf_newsletter` CPT + ACF field group (issue, date, pdf, summary, thumbnail, member_only) (3pt)
+7. Newsletter archive page (`/newsletters/`) — public teaser / member download (3pt)
+8. Member dashboard page + `[gf_member_dashboard]` shortcode (3pt)
 
-### Sprint 3 — Admin & Automation (Day 3)
-8. Admin user list columns + membership meta box (5pt)
-9. WP Cron daily expiry check (2pt)
-10. Renewal reminder emails (3pt)
+### Sprint 3 — Admin (Day 3)
+9. Admin user list extra columns (member number, status, joined, pin sent) (2pt)
+10. Membership meta box on User edit screen (5pt)
+11. Nav header: conditional login / member area dropdown (2pt)
 
-### Sprint 4 — Polish & Import (Day 4)
-11. Bulk member import script from CSV (3pt)
-12. Nav login/logout conditional display (2pt)
-13. "Renew Newsletter" prompt on dashboard (2pt)
+### Sprint 4 — Content & Import (Day 4)
+12. Bulk newsletter import script: folder of PDFs → `gf_newsletter` posts (3pt)
+13. Bulk member import script: CSV → WP users with `active` status + meta (3pt)
 
 ---
 
 ## 9. Open Items
 
-| Item | Status | Action |
-|------|--------|--------|
-| Current AUD membership fees | Unverified | Confirm $35 / $20 with client |
-| Existing member list / spreadsheet | Unknown | Ask client to supply CSV for bulk import |
-| Stripe account | Unknown | Client to create if preferred over PayPal |
-| Back-issue newsletters (PDFs) | Unknown | How many? In what format? |
-| Open vs approved registration | Decision needed | Client committee to decide |
-| Annual vs life-only membership tiers | Decision needed | Client committee to decide |
-| Membership form PDF (Phase 4 open item) | Awaiting | Probably superseded by online registration |
+| Item | Status | Action Required |
+|------|--------|----------------|
+| Existing member list / spreadsheet | Unknown | Client to supply CSV for bulk import (prevents re-registration) |
+| Existing member numbers (GF-XXXX) | Unknown | Include in CSV if they exist |
+| Honorary members list | Unknown | Client to supply names/emails |
+| Newsletter public/private split | Decision | Which back-issues (if any) should be public? |
+| Bank account BSB + account number | Needed | Client to supply for BACS gateway config |
+| PayPal Business account | Unknown | Confirm existing account or need to create |
+| Who manages members in WP admin | Decision | Full admin vs restricted committee role |
+| Lapel pin postal address in order email | Decision | Does admin need member's postal address captured at registration? |
+| Membership form PDF (Phase 4 open item) | Superseded | Online registration replaces paper form |
 
 ---
 
-*Prepared: 2026-02-28 | Builds on: Phase 5 SCOPE.md + contact-mapping.md + UI-UX-ANALYSIS.md*
+## 10. Phase 7 Preview (Not In Scope)
+
+Flagged for scoping after Phase 6 goes live:
+
+| Feature | Probable Approach |
+|---------|------------------|
+| **Member forum** | bbPress (free WP plugin); board restricted to `gf_association_member` role; sub-boards: General, Research, Family Connections |
+| **Committee meeting notes** | `gf_meeting_notes` CPT; restricted to `gf_committee` role; not visible to general members |
+| **Member voting** | AGM motions or content decisions; WP-Polls or custom ACF form; one-vote-per-user enforcement via user meta |
+| **Member directory** | Opt-in; members list their name + connection to a veteran; searchable by other members only |
+
+Phase 7 architecture relies on Phase 6's `gf_association_member` role and user meta infrastructure — Phase 6 must be complete first.
+
+---
+
+*Prepared: 2026-02-28 | Updated with confirmed decisions: $50 life membership, PayPal + BACS, auto-approval, newsletter included*
+*Builds on: Phase 5 SCOPE.md + contact-mapping.md + UI-UX-ANALYSIS.md*
 *Phase 5 "Won't Have" reason: "Requires authentication, moderation workflow, client buy-in" — all three now addressed in this scope.*
