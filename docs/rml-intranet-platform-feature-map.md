@@ -82,6 +82,19 @@ graph TD
 
 ---
 
+## Notion Data Layer
+
+All intranet Notion databases are centralised on the **Core Data page** (ops-accessible):
+
+**Page:** https://www.notion.so/2ece1901e36e806e8d7ac3ebf84b9b73
+**Rule:** Any new intranet Notion database MUST be created as a child of this page.
+
+The page mirrors this platform map — 8 sections, each with a status callout and embedded databases. The `RML Platform Features` database (embedded at the top of Core Data) is the live source for the intranet's `/platform-map` page — status changes there propagate immediately.
+
+See: `docs/sessions/2026-03-03-rmlintranet-core-data-restructure.md` for full DB ID reference and technical notes.
+
+---
+
 ## Feature Status Matrix
 
 ### Legend
