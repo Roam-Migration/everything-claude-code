@@ -15,7 +15,7 @@
 |--------|---------|--------------|
 | **Notion** | Task/project management integration. Required for Notion skills and prompts. | `/plugin install Notion@claude-plugins-official` |
 | **context7** | Live documentation lookup. Essential for library references. | `/plugin install context7@claude-plugins-official` |
-| **github** | GitHub operations (PRs, issues). Required for contribution workflow. | `/plugin install github@claude-plugins-official` |
+| **github** | ~~GitHub MCP plugin~~ — use `gh` CLI instead (pre-authenticated, same capability) | `gh auth status` to verify |
 | **supabase** | Database operations. Required for Supabase-related work. | `/plugin install supabase@claude-plugins-official` |
 
 ### Recommended Plugins
