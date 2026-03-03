@@ -1,5 +1,22 @@
 # Notion Operations Checklist
 
+## Step 0: Validate Token (ALWAYS FIRST)
+
+Before starting any multi-step Notion workflow:
+
+```
+notion-fetch(<any known page URL>)
+```
+
+If this returns `"requires re-authorization (token expired)"`:
+- **Stop immediately** — do not continue with the workflow
+- Run `/mcp` to re-authenticate via OAuth
+- Then restart the workflow from the beginning
+
+**Why this matters:** Token expiry is silent. You will complete the discovery steps (fetching schema, getting data_source_id) only to have the write step fail with a re-auth error — wasting all prior context. One validation call at the start prevents this.
+
+---
+
 ## Before Creating Pages in Any Database
 
 - [ ] **Fetch the database schema** using `notion-fetch <database-id>` to see:
