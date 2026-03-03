@@ -1590,21 +1590,23 @@ function runTests() {
   // ── Round 47: escape sequence and frontmatter edge cases ──
   console.log('\nRound 47: validate-hooks (inline JS escape sequences):');
 
-  if (test('validates inline JS with mixed escape sequences (newline + escaped quote)', () => {
+  if (test('validates inline JS with mixed escape sequences (semicolon + escaped quote)', () => {
     const testDir = createTestDir();
     const hooksFile = path.join(testDir, 'hooks.json');
-    // Command value after JSON parse: node -e "var a = \"ok\"\nconsole.log(a)"
-    // Regex captures: var a = \"ok\"\nconsole.log(a)
-    // After unescape chain: var a = "ok"\nconsole.log(a) (real newline) — valid JS
+    // Command value after JSON parse: node -e "var a = \"ok\"; console.log(a)"
+    // Regex captures: var a = \"ok\"; console.log(a)
+    // After unescape (\\\" -> \", \\\\ -> \\): var a = "ok"; console.log(a) — valid JS
+    // Note: \n (backslash-n) is NOT expanded to a real newline because bash double-quoted
+    // strings do not expand \n; use semicolons to separate statements in inline hooks.
     fs.writeFileSync(hooksFile, JSON.stringify({
       hooks: {
         PreToolUse: [{ matcher: 'test', hooks: [{ type: 'command',
-          command: 'node -e "var a = \\"ok\\"\\nconsole.log(a)"' }] }]
+          command: 'node -e "var a = \\"ok\\"; console.log(a)"' }] }]
       }
     }));
 
     const result = runValidatorWithDir('validate-hooks', 'HOOKS_FILE', hooksFile);
-    assert.strictEqual(result.code, 0, 'Should handle escaped quotes and newline separators');
+    assert.strictEqual(result.code, 0, 'Should handle escaped quotes in inline JS');
     cleanupTestDir(testDir);
   })) passed++; else failed++;
 

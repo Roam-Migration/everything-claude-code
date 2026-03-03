@@ -238,7 +238,7 @@ async function runTests() {
 
   if (await asyncTest('blocking hooks output BLOCKED message', async () => {
     // Test the dev server blocking hook — must send a matching command
-    const blockingCommand = hooks.hooks.PreToolUse[0].hooks[0].command;
+    const blockingCommand = hooks.hooks.PreToolUse[1].hooks[0].command;
     const match = blockingCommand.match(/^node -e "(.+)"$/s);
 
     const proc = spawn('node', ['-e', match[1]], {
@@ -283,7 +283,7 @@ async function runTests() {
 
   if (await asyncTest('blocking hooks exit with code 2', async () => {
     // The dev server blocker blocks when a dev server command is detected
-    const blockingCommand = hooks.hooks.PreToolUse[0].hooks[0].command;
+    const blockingCommand = hooks.hooks.PreToolUse[1].hooks[0].command;
     const match = blockingCommand.match(/^node -e "(.+)"$/s);
 
     const proc = spawn('node', ['-e', match[1]], {
