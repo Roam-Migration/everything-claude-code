@@ -1,6 +1,6 @@
 # SPQR Dashboard Inventory
 
-**Last updated:** 2026-03-09
+**Last updated:** 2026-03-09 (Task 2 complete)
 **Metabase:** wealth-fish.metabaseapp.com
 **Collection:** 133 (SPQR Dashboards)
 
@@ -10,8 +10,8 @@
 
 | ID | Name | Status | Session |
 |----|------|--------|---------|
-| TBC | Active Matters Overview | Live | 2026-02-16 |
 | 661 | Staff Time Management | Live | 2026-02-25 |
+| 727 | Active Matters Overview | Live | 2026-03-09 |
 | 694 | Individual Performance Dashboard | Live | 2026-03-09 |
 | 695 | Team KPI Summary — Jan–Mar 2026 | Live | 2026-03-09 |
 
@@ -39,6 +39,25 @@
 - Conditional formatting: Red = Urgent (deadline ≤14 days), Orange = Stale (no activity >30 days)
 - Based on Metabase model for GUI builder compatibility
 - Performance: 4.9s (optimised from original 93s)
+
+## Cards — Active Matters Overview (Dashboard 727)
+
+| Card ID | Name | Type | Dashboard row | Notes |
+|---------|------|------|---------------|-------|
+| 2347 | KPI: Total Active Matters | Scalar | 0 | COUNT(*) active matters |
+| 2348 | KPI: % Stale Matters | Scalar | 0 | Stale / total × 100 |
+| 2349 | KPI: Urgent Matters | Scalar | 0 | COUNT where is_urgent=1 |
+| 2344 | Matters by Case Manager | Bar (horizontal) | 4 | Group by case_manager, count; series = stage |
+| 2346 | Matters by Visa Type | Donut | 4 | Slice by matter_type, count |
+| 2345 | Matters by Stage | Bar (horizontal) | 16 | Group by stage, count |
+
+### SQL approach
+- All 6 cards use native SQL against `htmigration.dbo.actions` (NOT the Active Matters Overview v2 model — that model has `SELECT TOP 100` which caps aggregation)
+- Deduplication: `ROW_NUMBER() OVER (PARTITION BY action_id ORDER BY participant_id DESC) AS rn` to handle dual Case Manager assignments
+- `is_stale` = no activity in 30+ days; `is_urgent` = deadline within 14 days or fewer
+
+### CDN limitation
+Metabase Cloud CDN blocks dashboard PUT requests with 7+ dashcards (returns HTML 404 "Metabase instance not found"). Maximum 6 dashcards per PUT. Card 1630 (Advanced Multi-Filter) was not added to Dashboard 727 due to this limit. Can be added manually via Metabase UI.
 
 ---
 
@@ -72,20 +91,9 @@
 
 ---
 
-## Pending Cards (Open Tasks)
+## Pending Cards
 
-From Notion task "Add visualization cards to SPQR Active Matters dashboard":
-
-| Card | Type | Config | Status |
-|------|------|--------|--------|
-| Bar Chart: Matters by Case Manager | Horizontal bar | Group by case_manager, count matter_id, series = stage | Not started |
-| Bar Chart: Matters by Stage | Horizontal bar | Group by stage, count matter_id | Not started |
-| Donut Chart: Matters by Type | Donut/Pie | Slice by matter_type, count matter_id | Not started |
-| KPI Tile: Total Active Matters | Scalar | COUNT(*) | Not started |
-| KPI Tile: % Stale Matters | Scalar | is_stale=1 / total × 100 | Not started |
-| KPI Tile: Urgent Matters | Scalar | COUNT where is_urgent=1 | Not started |
-
-**Implementation note:** Use GUI Query Builder (not native SQL) so these cards automatically inherit dashboard filter connectivity. Source: "Active Matters Overview v2" model.
+*(None — all planned visualization cards delivered)*
 
 ---
 
@@ -94,7 +102,7 @@ From Notion task "Add visualization cards to SPQR Active Matters dashboard":
 | Task | Priority | URL |
 |------|----------|-----|
 | Build Individual & Team KPI Dashboards via Signed Embedding | **DONE** | https://www.notion.so/31ee1901e36e813ebb0acbf9a6cb6f5e |
-| Add visualization cards to SPQR Active Matters dashboard | High | https://www.notion.so/309e1901e36e8105bca5e1edfb633b37 |
+| Add visualization cards to SPQR Active Matters dashboard | **DONE** | https://www.notion.so/309e1901e36e8105bca5e1edfb633b37 |
 | Optimize SPQR dashboard staff dropdown filtering | Normal | https://www.notion.so/309e1901e36e81bbbcdfd24842cd8796 |
 | Configure Metabase KPI dashboards for legal staff My Workspace | Normal | https://www.notion.so/31ae1901e36e813b8b18fefd81463bfb |
 | Deploy SPQR dashboard link to RML Intranet | TBC | https://www.notion.so/309e1901e36e8165babbf28c710d14a1 |
