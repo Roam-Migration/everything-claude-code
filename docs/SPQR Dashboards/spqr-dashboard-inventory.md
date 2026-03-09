@@ -12,6 +12,8 @@
 |----|------|--------|---------|
 | TBC | Active Matters Overview | Live | 2026-02-16 |
 | 661 | Staff Time Management | Live | 2026-02-25 |
+| 694 | Individual Performance Dashboard | Live | 2026-03-09 |
+| 695 | Team KPI Summary — Jan–Mar 2026 | Live | 2026-03-09 |
 
 ---
 
@@ -63,7 +65,10 @@
 
 | Card ID | Name | Type | Notes |
 |---------|------|------|-------|
-| 2278 | Participant KPI Summary — Jan–Mar 2026 | Table | Replicates Actionstep KPI Summary report. 16 staff, 6 months × (Act Hrs, KPI Hrs, Hrs%, Act Inv, KPI Inv, Inv%) |
+| 2278 | Participant KPI Summary — Jan–Mar 2026 | Table | All-staff view. Replicates Actionstep KPI Summary report. 16 staff, 6 months × (Act Hrs, KPI Hrs, Hrs%, Act Inv, KPI Inv, Inv%) |
+| 2311 | My KPI Summary — Jan–Mar 2026 | Table | Single-person view of Card 2278. Template tag: `{{participant_id}}` (number). Used in Dashboard 694. |
+| 2312 | My Monthly Performance Trend — 2026 | Bar | Unpivoted monthly data — one row per month per person. Template tag: `{{participant_id}}`. X=Month, Y=Actual vs KPI hours. |
+| 2313 | My Open Matters | Table | Active matters where participant is Case Manager. Template tag: `{{participant_id}}`. Columns: File Ref, Matter Name, Visa Type, Stage, Days Open, Last Activity. |
 
 ---
 
@@ -88,6 +93,7 @@ From Notion task "Add visualization cards to SPQR Active Matters dashboard":
 
 | Task | Priority | URL |
 |------|----------|-----|
+| Build Individual & Team KPI Dashboards via Signed Embedding | **DONE** | https://www.notion.so/31ee1901e36e813ebb0acbf9a6cb6f5e |
 | Add visualization cards to SPQR Active Matters dashboard | High | https://www.notion.so/309e1901e36e8105bca5e1edfb633b37 |
 | Optimize SPQR dashboard staff dropdown filtering | Normal | https://www.notion.so/309e1901e36e81bbbcdfd24842cd8796 |
 | Configure Metabase KPI dashboards for legal staff My Workspace | Normal | https://www.notion.so/31ae1901e36e813b8b18fefd81463bfb |
