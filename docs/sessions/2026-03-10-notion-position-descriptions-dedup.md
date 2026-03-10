@@ -55,8 +55,8 @@ Archived pages remain in the database and are excluded from active views (the "B
 
 ---
 
-## Remaining Cleanup (Optional)
+## Remaining Cleanup
 
-- The archived pages (7 total) can be permanently deleted from the database via Notion UI if desired — not done here as the user did not request deletion
+- The archived pages (7 total) will be permanently deleted by Jackson via Notion UI
 - A review of the `Career Progression` self-relation field across all positions may surface further inconsistencies (not in scope today)
 - The `Accounts Officer` page archived in Pass 1 (`...81d1`) and the two `Systems Administrator` pages from last session may have downstream relation links pointing to them that need updating
