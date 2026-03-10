@@ -30,7 +30,7 @@ const rowsWithRole = rows.map((r) =>
 );
 ```
 
-**Deployed:** Backend `SUCCESS` (07:25 UTC)
+**Deployed:** Backend (07:25 UTC)
 
 ---
 
@@ -51,7 +51,7 @@ State machine: `loading → [embed | ready(events) | ready(empty) | error]`
 - `dwd_available: false` → falls back to Google Calendar iframe embed (existing behavior, no regression)
 - `dwd_available: true` → native event list grouped by date (Today/Tomorrow/day labels), shows time + location, links to Google Calendar
 
-**Deployed:** Frontend + Backend `SUCCESS` (07:27, 07:28 UTC)
+**Deployed:** Frontend + Backend (07:27, 07:28 UTC)
 
 **⚠️ Admin action required for DWD activation:**
 1. Google Admin Console → Security → API Controls → Domain-wide Delegation
@@ -69,6 +69,14 @@ State machine: `loading → [embed | ready(events) | ready(empty) | error]`
 
 ---
 
+### Linter Change: DEPT_COLORS in notion-sync.ts
+
+Added `DEPT_COLORS` constant to `syncDepartments()` — maps department names to hex colours
+for the `departments.color` column (previously hardcoded `null`). Applied by linter/user
+post-session and committed to HEAD.
+
+---
+
 ## Deployments
 
 | Build | Status | What |
@@ -79,7 +87,27 @@ State machine: `loading → [embed | ready(events) | ready(empty) | error]`
 
 ---
 
+## Pattern Docs Written
+
+- `docs/patterns/notion-my-tasks-widget.md` — v5 SDK query, property names, nginx routing, gotchas
+- `docs/patterns/gcal-schedule-widget.md` — embed vs DWD, admin setup, state machine, timezone
+
+---
+
+## Handover for Ravi (SysAdmin)
+
+Notion page created with step-by-step DWD setup instructions:
+https://www.notion.so/31fe1901e36e815ebaf8d1c7759279f0
+
+Key details:
+- Client ID: `103726231682011200791`
+- Scope: `https://www.googleapis.com/auth/calendar.readonly`
+- Admin URL: `admin.google.com/ac/owl/domainwidedelegation`
+- No redeployment needed once saved
+
+---
+
 ## Outstanding
 
 - **Task 7: User test Dashboard 529** — manual testing with team members. No code needed.
-- **GCal DWD admin setup** — requires Google Workspace Super Admin access. See above for steps.
+- **GCal DWD admin setup** — Ravi to complete. Notion page sent: https://www.notion.so/31fe1901e36e815ebaf8d1c7759279f0
