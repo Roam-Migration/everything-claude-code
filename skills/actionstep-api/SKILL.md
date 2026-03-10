@@ -157,7 +157,7 @@ OAuth2 credentials requested from Actionstep dev team (2026-02-26). Will enable 
 
 ## Resources
 
-- Notion project: https://www.notion.so/31ae1901e36e818c8715e98a6b18ee39
-- IT Systems Registry entry: https://www.notion.so/31ae1901e36e81fdbd0df8ab17a21289
+- Notion project: <https://www.notion.so/31ae1901e36e818c8715e98a6b18ee39>
+- IT Systems Registry entry: <https://www.notion.so/31ae1901e36e81fdbd0df8ab17a21289>
 - API access statement session notes: `docs/sessions/2026-02-26-actionstep-api-access-statement.md`
-- AS Gmail Plugin project: https://www.notion.so/311e1901e36e805c98e4cb1b55ebe88a
+- AS Gmail Plugin project: <https://www.notion.so/311e1901e36e805c98e4cb1b55ebe88a>

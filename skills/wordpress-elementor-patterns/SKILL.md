@@ -668,8 +668,8 @@ ssh -i ~/.ssh/siteground_gullforce -p 18765 u2316-1fi6cxp40agu@ssh.jacksont.sg-h
 
 ## References
 
-- Elementor developer docs: https://developers.elementor.com/docs/
-- WordPress Plugin Handbook: https://developer.wordpress.org/plugins/
-- WooCommerce hooks: https://woocommerce.com/document/woocommerce-hooks/
+- Elementor developer docs: <https://developers.elementor.com/docs/>
+- WordPress Plugin Handbook: <https://developer.wordpress.org/plugins/>
+- WooCommerce hooks: <https://woocommerce.com/document/woocommerce-hooks/>
 - Gull Force project notes: `docs/sessions/` in ECC repo
 - Gull Force WP repo: `/home/jtaylor/gull-force-wp` (jtaylorcomplize/gull-force-wp)
