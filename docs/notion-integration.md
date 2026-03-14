@@ -380,8 +380,8 @@ compass-wiki to share the same component set.
 #### Person Properties
 ```json
 {
-  "Driver": "\"cd2bebb6-f5c0-46aa-a3d3-86116bbdcc87\"",  // Single person (JSON string)
-  "Consulted": "[\"user-id-1\", \"user-id-2\"]"          // Multiple people (JSON array)
+  "Driver": "cd2bebb6-f5c0-46aa-a3d3-86116bbdcc87",    // Single person — plain UUID, NO extra quoting
+  "Consulted": "[\"user-id-1\", \"user-id-2\"]"        // Multi-person (Consulted, Informed) — JSON array string
 }
 ```
 
@@ -563,7 +563,7 @@ Jackson can then manually update the task status in Notion.
 ### Common Errors
 
 **Error:** `Id "xxx" is not a user id`
-- **Fix:** User IDs in person properties must be in JSON string format: `"\"user-id\""`
+- **Fix:** Person properties must use plain UUID strings — no extra JSON-quoting: `"cd2bebb6-f5c0-46aa-a3d3-86116bbdcc87"`
 
 **Error:** `Could not find page with ID`
 - **Fix:** You're using Database ID instead of Collection ID. Collection IDs are used for creating pages.

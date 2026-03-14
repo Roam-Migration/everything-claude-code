@@ -111,45 +111,43 @@ notion-get-users
 
 ### Phase 4: Write Operation
 
-Use the discovered collection UUID as `data_source_id`:
+Use the discovered collection UUID as `data_source_id`. **Properties use SQLite value format** (what the MCP tool's schema shows), NOT the raw Notion REST API format:
 
 ```json
 {
   "parent": {
-    "type": "data_source",
-    "data_source_id": "collection://[UUID-from-Phase-2]"
+    "type": "data_source_id",
+    "data_source_id": "[UUID-from-Phase-2]"
   },
-  "properties": {
-    "Name": {
-      "title": [{ "text": { "content": "Page title here" } }]
-    },
-    "Status": {
-      "select": { "name": "Not started" }
-    },
-    "Driver": {
-      "people": [{ "id": "cd2bebb6-f5c0-46aa-a3d3-86116bbdcc87" }]
-    },
-    "Due date": {
-      "date": { "start": "2026-03-20" }
+  "pages": [{
+    "properties": {
+      "Task": "Page title here",
+      "Status": "Not started",
+      "Driver": "cd2bebb6-f5c0-46aa-a3d3-86116bbdcc87",
+      "Project": "[\"https://www.notion.so/page-id\"]",
+      "date:Start Date:start": "2026-03-20",
+      "date:Start Date:is_datetime": 0
     }
-  }
+  }]
 }
 ```
 
-**Common property type formats:**
+**SQLite property value formats (MCP tool):**
 
-| Type | Format |
-|------|--------|
-| `title` | `[{ "text": { "content": "..." } }]` |
-| `rich_text` | `[{ "text": { "content": "..." } }]` |
-| `select` | `{ "name": "Exact Option" }` |
-| `multi_select` | `[{ "name": "Option 1" }, { "name": "Option 2" }]` |
-| `date` | `{ "start": "YYYY-MM-DD" }` |
-| `people` | `[{ "id": "user-uuid" }]` |
-| `relation` | `[{ "id": "page-uuid" }]` |
-| `number` | `42` |
-| `checkbox` | `true` or `false` |
-| `url` | `"https://..."` |
+| Type | Format | Notes |
+|------|--------|-------|
+| `title` | `"My Task"` | Plain string |
+| `text` | `"Summary text"` | Plain string |
+| `select` | `"Not started"` | Exact option name, no prefix |
+| `multi_select` | `"[\"Tag1\", \"Tag2\"]"` | JSON array string |
+| `date` | `"date:Prop:start": "YYYY-MM-DD"` + `"date:Prop:is_datetime": 0` | Expanded keys |
+| `person` (single) | `"cd2bebb6-..."` | **Plain UUID — no extra quoting** |
+| `person` (multi) | `"[\"uuid1\", \"uuid2\"]"` | JSON array string (Consulted, Informed) |
+| `relation` (single) | `"[\"https://www.notion.so/page-id\"]"` | JSON array string with full URL |
+| `relation` (multi) | `"[\"url1\", \"url2\"]"` | JSON array string |
+| `number` | `42` | JS number, not string |
+| `checkbox` | `"__YES__"` or `"__NO__"` | Not `true`/`false` |
+| `url` | `"https://..."` | Plain string; prefix name with `userDefined:` if named "url"/"id" |
 
 ---
 
@@ -192,7 +190,7 @@ If the page is missing:
 | Page created but missing from database | Wrong collection UUID | Re-run Phase 2 on the database page |
 | `Could not find property 'Name'` | Case mismatch | Re-run Phase 3 and check exact casing |
 | `Invalid select option` | Select value doesn't match enum | Fetch existing row to see valid options |
-| Person property fails | Using email instead of user ID | Use `notion-get-users` to get ID |
+| Person property fails | Using email or extra JSON-quoting (`\"uuid\"`) | Use plain UUID string; get ID from `notion-get-users` |
 | Relation property fails | Page ID format wrong | Use bare UUID without `notion.so/` prefix |
 | Write succeeds but data looks wrong | `@Name` format in v5 API | Strip `@` prefix from person name; derive last_name from email |
 

@@ -35,7 +35,8 @@ If this returns `"requires re-authorization (token expired)"`:
 
 ### Person Properties
 ```json
-"Driver": "[\"cd2bebb6-f5c0-46aa-a3d3-86116bbdcc87\"]"  // JSON array
+"Driver": "cd2bebb6-f5c0-46aa-a3d3-86116bbdcc87"       // plain UUID string (single person — NO extra quoting)
+"Consulted": "[\"user-id-1\", \"user-id-2\"]"           // JSON array string (multi-person fields: Consulted, Informed)
 ```
 
 ### Relation Properties
