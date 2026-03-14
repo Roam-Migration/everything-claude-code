@@ -156,6 +156,18 @@ Do NOT add to memory:
 
 ---
 
+### Phase 4b: Update Sessions Index
+
+Append a one-line entry to `docs/sessions/INDEX.md`:
+
+```
+| YYYY-MM-DD | brief-description | key topic 1, key topic 2, key topic 3 |
+```
+
+Keep topics short (3–5 words each) and grep-friendly. This index is how future sessions find relevant prior notes.
+
+---
+
 ### Phase 5: Commit ECC Docs + Memory
 
 ```bash
@@ -221,6 +233,7 @@ Pushed: ECC → team/main ✓
 - [ ] Notion tasks created for all incomplete/future items
 - [ ] Each Notion task has a Project relation set
 - [ ] Memory updated if new patterns discovered
+- [ ] `docs/sessions/INDEX.md` updated with one-line entry
 - [ ] ECC docs/sessions committed
 - [ ] ECC pushed to team remote
 

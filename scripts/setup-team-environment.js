@@ -134,44 +134,54 @@ async function main() {
     }
   }
 
-  // Step 4: Check for required plugins
-  header('Step 4: Checking Required Plugins');
+  // Step 4: Install commands to ~/.claude/commands/
+  header('Step 4: Installing Slash Commands');
+  try {
+    execSync('bash scripts/install-commands.sh', { cwd: projectRoot, stdio: 'inherit' });
+  } catch (error) {
+    log('❌ Command installation failed — run manually: bash scripts/install-commands.sh', 'red');
+  }
 
-  const requiredPlugins = [
-    'Notion@claude-plugins-official',
-    'context7@claude-plugins-official',
-    'github@claude-plugins-official',
-    'supabase@claude-plugins-official',
-  ];
+  // Step 5: Activate hooks in ~/.claude/settings.json
+  header('Step 5: Activating Hooks');
+  try {
+    execSync('bash scripts/install-hooks.sh', { cwd: projectRoot, stdio: 'inherit' });
+  } catch (error) {
+    log('❌ Hook installation failed — run manually: bash scripts/install-hooks.sh', 'red');
+  }
+
+  // Step 6: Check for required plugins
+  header('Step 6: Required Plugins (manual step)');
 
   log('ℹ️  Claude Code plugins must be installed manually:', 'blue');
-  log('   Run these commands in Claude Code:', 'blue');
+  log('   Run these commands inside Claude Code:', 'blue');
   console.log('');
-  for (const plugin of requiredPlugins) {
-    log(`   /plugin install ${plugin}`, 'cyan');
-  }
+  log('   /plugin install Notion@claude-plugins-official', 'cyan');
+  log('   /plugin install context7@claude-plugins-official', 'cyan');
+  log('   /plugin install frontend-design@claude-plugins-official', 'cyan');
   console.log('');
+  log('   Note: Use gh CLI instead of github plugin (already authenticated)', 'blue');
   log('   After installing, restart Claude Code with: /exit', 'blue');
 
-  // Step 5: Summary
+  // Step 7: Summary
   header('Setup Complete!');
 
   log('✅ Configuration templates created', 'green');
   log('✅ MCP servers built', 'green');
+  log('✅ Slash commands installed to ~/.claude/commands/', 'green');
+  log('✅ Hooks activated in ~/.claude/settings.json', 'green');
   console.log('');
-  log('📋 Next Steps:', 'blue');
+  log('Next Steps:', 'blue');
   log('   1. Install required plugins (see above)', 'blue');
-  log('   2. Edit .claude/settings.json to customize plugins', 'blue');
-  log('   3. Edit mcp-servers/metabase/.mcp.json with your credentials', 'blue');
-  log('   4. Restart Claude Code', 'blue');
-  log('   5. Run: node scripts/verify-environment.js', 'blue');
+  log('   2. Edit mcp-servers/metabase/.mcp.json with your Metabase credentials', 'blue');
+  log('   3. Restart Claude Code', 'blue');
+  log('   4. Run: node scripts/verify-environment.js', 'blue');
   console.log('');
-  log('📚 Documentation:', 'blue');
-  log('   - CLAUDE.md - Project configuration', 'blue');
-  log('   - docs/team-sync-guide.md - Collaboration guide', 'blue');
-  log('   - docs/metabase-setup-guide.md - Metabase integration', 'blue');
+  log('Documentation:', 'blue');
+  log('   - CLAUDE.md        - Quick reference (triggers, rules, structure)', 'blue');
+  log('   - docs/SETUP.md    - Full setup and contribution guide', 'blue');
+  log('   - rml/CLAUDE.md    - RML team context and workflows', 'blue');
   console.log('');
-  log('🎉 Happy coding!', 'green');
 }
 
 main().catch(error => {
