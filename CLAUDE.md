@@ -180,6 +180,8 @@ When the conditions below are met, proactively apply the corresponding skill **w
 | About to write to any Notion database via MCP | Run Phase 1–3 of `skills/notion-mcp-write-workflow/SKILL.md` first (token check + UUID discovery + schema) |
 | User asks to create a Metabase card or dashboard | `skills/metabase-card-creation/SKILL.md` |
 | Writing SQL for Metabase | Reference `skills/metabase-sql-server-patterns/SKILL.md` |
+| End of any RML Intranet session where pages/routes/forms were added or statuses changed | `skills/rml-intranet-sync/SKILL.md` |
+| Adding a form to the RML Intranet | `skills/rml-form-integration/SKILL.md` |
 
 ---
 
