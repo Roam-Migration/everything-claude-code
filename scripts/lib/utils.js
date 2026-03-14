@@ -197,6 +197,74 @@ function findFiles(dir, pattern, options = {}) {
 }
 
 /**
+ * Walk up the directory tree from startDir looking for a directory that
+ * contains a given filename (e.g., "package.json", "tsconfig.json").
+ * @param {string} startDir - Directory to start searching from
+ * @param {string} filename - Filename to look for in each ancestor directory
+ * @param {number} maxDepth - Maximum levels to walk up (default: 20, prevents infinite loops on malformed paths)
+ * @returns {string|null} The first ancestor directory containing filename, or null if not found
+ */
+function findAncestorDir(startDir, filename, maxDepth = 20) {
+  let dir = path.resolve(startDir);
+  let depth = 0;
+  const fsRoot = path.parse(dir).root;
+  while (dir !== fsRoot && depth < maxDepth) {
+    if (fs.existsSync(path.join(dir, filename))) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) break; // Guard for unusual fs roots
+    dir = parent;
+    depth++;
+  }
+  return null;
+}
+
+/**
+ * Read raw string from stdin.
+ * Useful for hooks that need to pass stdin through to stdout unchanged
+ * while also inspecting its contents.
+ * @param {object} options - Options
+ * @param {number} options.timeoutMs - Timeout in milliseconds (default: 5000)
+ * @param {number} options.maxSize - Maximum size in bytes (default: 1MB)
+ * @returns {Promise<string>} Raw stdin content as string
+ */
+async function readStdinString(options = {}) {
+  const { timeoutMs = 5000, maxSize = 1024 * 1024 } = options;
+
+  return new Promise((resolve) => {
+    let data = '';
+    let settled = false;
+
+    const timer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        process.stdin.removeAllListeners('data');
+        process.stdin.removeAllListeners('end');
+        process.stdin.removeAllListeners('error');
+        if (process.stdin.unref) process.stdin.unref();
+        resolve(data);
+      }
+    }, timeoutMs);
+
+    process.stdin.setEncoding('utf8');
+    process.stdin.on('data', chunk => {
+      if (data.length < maxSize) data += chunk.substring(0, maxSize - data.length);
+    });
+    process.stdin.on('end', () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(data);
+    });
+    process.stdin.on('error', () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(data);
+    });
+  });
+}
+
+/**
  * Read JSON from stdin (for hook input)
  * @param {object} options - Options
  * @param {number} options.timeoutMs - Timeout in milliseconds (default: 5000).
@@ -507,6 +575,7 @@ module.exports = {
 
   // File operations
   findFiles,
+  findAncestorDir,
   readFile,
   writeFile,
   appendFile,
@@ -515,6 +584,7 @@ module.exports = {
   grepFile,
 
   // Hook I/O
+  readStdinString,
   readStdinJson,
   log,
   output,

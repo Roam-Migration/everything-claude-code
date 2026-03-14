@@ -12,19 +12,9 @@
  */
 
 const path = require('path');
+const { readStdinString } = require('../lib/utils');
 
-const MAX_STDIN = 1024 * 1024; // 1MB limit
-let data = '';
-process.stdin.setEncoding('utf8');
-
-process.stdin.on('data', chunk => {
-  if (data.length < MAX_STDIN) {
-    const remaining = MAX_STDIN - data.length;
-    data += chunk.length > remaining ? chunk.slice(0, remaining) : chunk;
-  }
-});
-
-process.stdin.on('end', () => {
+readStdinString().then(data => {
   try {
     const input = JSON.parse(data);
     const filePath = input.tool_input?.file_path || '';
@@ -58,4 +48,4 @@ process.stdin.on('end', () => {
   }
 
   process.stdout.write(data);
-});
+}).catch(() => {});

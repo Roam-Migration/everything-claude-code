@@ -13,26 +13,7 @@
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-
-const MAX_STDIN = 1024 * 1024; // 1MB limit
-let data = '';
-process.stdin.setEncoding('utf8');
-
-process.stdin.on('data', chunk => {
-  if (data.length < MAX_STDIN) {
-    const remaining = MAX_STDIN - data.length;
-    data += chunk.substring(0, remaining);
-  }
-});
-
-function findProjectRoot(startDir) {
-  let dir = startDir;
-  while (dir !== path.dirname(dir)) {
-    if (fs.existsSync(path.join(dir, 'package.json'))) return dir;
-    dir = path.dirname(dir);
-  }
-  return startDir;
-}
+const { findAncestorDir, readStdinString } = require('../lib/utils');
 
 function detectFormatter(projectRoot) {
   const biomeConfigs = ['biome.json', 'biome.jsonc'];
@@ -71,14 +52,15 @@ function getFormatterCommand(formatter, filePath) {
   return null;
 }
 
-process.stdin.on('end', () => {
+readStdinString().then(data => {
   try {
     const input = JSON.parse(data);
     const filePath = input.tool_input?.file_path;
 
     if (filePath && /\.(ts|tsx|js|jsx)$/.test(filePath)) {
       try {
-        const projectRoot = findProjectRoot(path.dirname(path.resolve(filePath)));
+        const fileDir = path.dirname(path.resolve(filePath));
+        const projectRoot = findAncestorDir(fileDir, 'package.json') || fileDir;
         const formatter = detectFormatter(projectRoot);
         const cmd = getFormatterCommand(formatter, filePath);
 
@@ -99,4 +81,4 @@ process.stdin.on('end', () => {
 
   process.stdout.write(data);
   process.exit(0);
-});
+}).catch(() => process.exit(0));

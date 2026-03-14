@@ -80,6 +80,13 @@ export interface ListAliasesOptions {
 /** Get the path to the aliases JSON file */
 export function getAliasesPath(): string;
 
+/**
+ * Validate an alias name against all naming rules.
+ * @returns An error message string if invalid, or null if valid.
+ * Rules: non-empty, ≤128 chars, alphanumeric/dash/underscore only, not a reserved word.
+ */
+export function validateAliasName(alias: string): string | null;
+
 /** Load all aliases from disk. Returns default structure if file doesn't exist. */
 export function loadAliases(): AliasStore;
 

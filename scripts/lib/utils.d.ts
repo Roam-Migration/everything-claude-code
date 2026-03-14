@@ -123,7 +123,29 @@ export interface GrepMatch {
 /** Search for a pattern in a file and return matching lines with line numbers */
 export function grepFile(filePath: string, pattern: string | RegExp): GrepMatch[];
 
+/**
+ * Walk up the directory tree from startDir, returning the first ancestor
+ * directory that contains the given filename (e.g., "package.json", "tsconfig.json").
+ * Returns null if not found within maxDepth levels.
+ * @param maxDepth - Maximum levels to search (default: 20)
+ */
+export function findAncestorDir(startDir: string, filename: string, maxDepth?: number): string | null;
+
 // --- Hook I/O ---
+
+export interface ReadStdinOptions {
+  /** Timeout in milliseconds. Default: 5000 */
+  timeoutMs?: number;
+  /** Maximum stdin size in bytes. Default: 1048576 (1MB) */
+  maxSize?: number;
+}
+
+/**
+ * Read raw string from stdin.
+ * Useful for hooks that need to inspect stdin AND pass it through to stdout unchanged.
+ * Resolves with an empty string on timeout or error — never rejects.
+ */
+export function readStdinString(options?: ReadStdinOptions): Promise<string>;
 
 export interface ReadStdinJsonOptions {
   /**

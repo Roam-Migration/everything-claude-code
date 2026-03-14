@@ -12,19 +12,9 @@
 const { execFileSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const { findAncestorDir, readStdinString } = require("../lib/utils");
 
-const MAX_STDIN = 1024 * 1024; // 1MB limit
-let data = "";
-process.stdin.setEncoding("utf8");
-
-process.stdin.on("data", (chunk) => {
-  if (data.length < MAX_STDIN) {
-    const remaining = MAX_STDIN - data.length;
-    data += chunk.substring(0, remaining);
-  }
-});
-
-process.stdin.on("end", () => {
+readStdinString().then(data => {
   try {
     const input = JSON.parse(data);
     const filePath = input.tool_input?.file_path;
@@ -35,25 +25,16 @@ process.stdin.on("end", () => {
         process.stdout.write(data);
         process.exit(0);
       }
-      // Find nearest tsconfig.json by walking up (max 20 levels to prevent infinite loop)
-      let dir = path.dirname(resolvedPath);
-      const root = path.parse(dir).root;
-      let depth = 0;
 
-      while (dir !== root && depth < 20) {
-        if (fs.existsSync(path.join(dir, "tsconfig.json"))) {
-          break;
-        }
-        dir = path.dirname(dir);
-        depth++;
-      }
+      // Find nearest tsconfig.json by walking up
+      const tsconfigDir = findAncestorDir(path.dirname(resolvedPath), "tsconfig.json");
 
-      if (fs.existsSync(path.join(dir, "tsconfig.json"))) {
+      if (tsconfigDir) {
         try {
           // Use npx.cmd on Windows to avoid shell: true which enables command injection
           const npxBin = process.platform === "win32" ? "npx.cmd" : "npx";
           execFileSync(npxBin, ["tsc", "--noEmit", "--pretty", "false"], {
-            cwd: dir,
+            cwd: tsconfigDir,
             encoding: "utf8",
             stdio: ["pipe", "pipe", "pipe"],
             timeout: 30000,
@@ -66,11 +47,11 @@ process.stdin.on("end", () => {
           // so check for the relative path, absolute path, and original path.
           // Avoid bare basename matching — it causes false positives when
           // multiple files share the same name (e.g., src/utils.ts vs tests/utils.ts).
-          const relPath = path.relative(dir, resolvedPath);
+          const relPath = path.relative(tsconfigDir, resolvedPath);
           const candidates = new Set([filePath, resolvedPath, relPath]);
           const relevantLines = output
             .split("\n")
-            .filter((line) => {
+            .filter(line => {
               for (const candidate of candidates) {
                 if (line.includes(candidate)) return true;
               }
@@ -79,10 +60,8 @@ process.stdin.on("end", () => {
             .slice(0, 10);
 
           if (relevantLines.length > 0) {
-            console.error(
-              "[Hook] TypeScript errors in " + path.basename(filePath) + ":",
-            );
-            relevantLines.forEach((line) => console.error(line));
+            console.error("[Hook] TypeScript errors in " + path.basename(filePath) + ":");
+            relevantLines.forEach(line => console.error(line));
           }
         }
       }
@@ -93,4 +72,4 @@ process.stdin.on("end", () => {
 
   process.stdout.write(data);
   process.exit(0);
-});
+}).catch(() => process.exit(0));
