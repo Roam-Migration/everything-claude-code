@@ -170,6 +170,19 @@ cp .claude/settings.example.json .claude/settings.json
 
 ---
 
+## Skill Triggers
+
+When the conditions below are met, proactively apply the corresponding skill **without waiting to be asked**. Read the skill file and follow its workflow.
+
+| Trigger | Skill to apply |
+|---------|---------------|
+| User says "close session", "wrap up", "end session", or "save session" | `skills/session-closure/SKILL.md` |
+| About to write to any Notion database via MCP | Run Phase 1–3 of `skills/notion-mcp-write-workflow/SKILL.md` first (token check + UUID discovery + schema) |
+| User asks to create a Metabase card or dashboard | `skills/metabase-card-creation/SKILL.md` |
+| Writing SQL for Metabase | Reference `skills/metabase-sql-server-patterns/SKILL.md` |
+
+---
+
 ## Skills and Workflows
 
 ### Metabase Development
