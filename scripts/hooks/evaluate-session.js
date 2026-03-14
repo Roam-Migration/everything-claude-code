@@ -15,6 +15,7 @@
 const path = require('path');
 const fs = require('fs');
 const {
+  getHomeDir,
   getLearnedSkillsDir,
   ensureDir,
   readFile,
@@ -69,7 +70,7 @@ async function main() {
 
       if (config.learned_skills_path) {
         // Handle ~ in path
-        learnedSkillsPath = config.learned_skills_path.replace(/^~/, require('os').homedir());
+        learnedSkillsPath = config.learned_skills_path.replace(/^~/, getHomeDir());
       }
     } catch (err) {
       log(`[ContinuousLearning] Failed to parse config: ${err.message}, using defaults`);

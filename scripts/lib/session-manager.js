@@ -401,12 +401,10 @@ function appendSessionContent(sessionPath, content) {
  */
 function deleteSession(sessionPath) {
   try {
-    if (fs.existsSync(sessionPath)) {
-      fs.unlinkSync(sessionPath);
-      return true;
-    }
-    return false;
+    fs.unlinkSync(sessionPath);
+    return true;
   } catch (err) {
+    if (err.code === 'ENOENT') return false;
     log(`[SessionManager] Error deleting session: ${err.message}`);
     return false;
   }

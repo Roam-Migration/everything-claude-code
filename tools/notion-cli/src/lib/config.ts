@@ -51,20 +51,19 @@ export class ConfigManager {
     }
 
     // Try to load Notion token from MCP config
+    const config: NotionConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
     const mcpConfigPath = path.join(CONFIG_DIR, 'mcp.json');
-    if (fs.existsSync(mcpConfigPath)) {
-      try {
-        const mcpConfig = JSON.parse(fs.readFileSync(mcpConfigPath, 'utf-8'));
-        const notionMcp = mcpConfig.mcpServers?.['plugin:Notion:notion'];
-        if (notionMcp?.env?.NOTION_API_KEY) {
-          DEFAULT_CONFIG.auth.token = notionMcp.env.NOTION_API_KEY;
-        }
-      } catch (error) {
-        // Ignore MCP config errors
+    try {
+      const mcpConfig = JSON.parse(fs.readFileSync(mcpConfigPath, 'utf-8'));
+      const notionMcp = mcpConfig.mcpServers?.['plugin:Notion:notion'];
+      if (notionMcp?.env?.NOTION_API_KEY) {
+        config.auth.token = notionMcp.env.NOTION_API_KEY;
       }
+    } catch {
+      // Ignore MCP config errors or missing file
     }
 
-    this.config = { ...DEFAULT_CONFIG };
+    this.config = config;
     return this.config;
   }
 
@@ -73,9 +72,7 @@ export class ConfigManager {
    */
   save(config: NotionConfig): void {
     // Ensure config directory exists
-    if (!fs.existsSync(CONFIG_DIR)) {
-      fs.mkdirSync(CONFIG_DIR, { recursive: true });
-    }
+    fs.mkdirSync(CONFIG_DIR, { recursive: true });
 
     // Write config file
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf-8');

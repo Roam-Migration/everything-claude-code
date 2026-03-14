@@ -19,11 +19,12 @@ export function bulkCreateCommand(): Command {
     .action(async (file, options) => {
       try {
         // Read and parse JSON file
-        if (!fs.existsSync(file)) {
-          throw new Error(`File not found: ${file}`);
+        let jsonData: string;
+        try {
+          jsonData = fs.readFileSync(file, 'utf-8');
+        } catch (err: any) {
+          throw new Error(err.code === 'ENOENT' ? `File not found: ${file}` : `Failed to read file: ${err.message}`);
         }
-
-        const jsonData = fs.readFileSync(file, 'utf-8');
         const input: BulkTasksInput = JSON.parse(jsonData);
 
         if (!input.tasks || !Array.isArray(input.tasks)) {

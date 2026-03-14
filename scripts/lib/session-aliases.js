@@ -21,6 +21,22 @@ function getAliasesPath() {
 // Current alias storage format version
 const ALIAS_VERSION = '1.0';
 
+// Reserved alias names (cannot be used as alias names)
+const RESERVED_ALIASES = ['list', 'help', 'remove', 'delete', 'create', 'set'];
+
+/**
+ * Validate an alias name. Returns an error string, or null if valid.
+ * @param {string} alias - Alias name to validate
+ * @returns {string|null} Error message or null if valid
+ */
+function validateAliasName(alias) {
+  if (!alias || alias.length === 0) return 'Alias name cannot be empty';
+  if (alias.length > 128) return 'Alias name cannot exceed 128 characters';
+  if (!/^[a-zA-Z0-9_-]+$/.test(alias)) return 'Alias name must contain only letters, numbers, dashes, and underscores';
+  if (RESERVED_ALIASES.includes(alias.toLowerCase())) return `'${alias}' is a reserved alias name`;
+  return null;
+}
+
 /**
  * Default aliases file structure
  */
@@ -40,13 +56,7 @@ function getDefaultAliases() {
  * @returns {object} Aliases object
  */
 function loadAliases() {
-  const aliasesPath = getAliasesPath();
-
-  if (!fs.existsSync(aliasesPath)) {
-    return getDefaultAliases();
-  }
-
-  const content = readFile(aliasesPath);
+  const content = readFile(getAliasesPath());
   if (!content) {
     return getDefaultAliases();
   }
@@ -102,10 +112,8 @@ function saveAliases(aliases) {
     // Ensure directory exists
     ensureDir(path.dirname(aliasesPath));
 
-    // Create backup if file exists
-    if (fs.existsSync(aliasesPath)) {
-      fs.copyFileSync(aliasesPath, backupPath);
-    }
+    // Create backup if file exists (best-effort — ignore if source missing)
+    try { fs.copyFileSync(aliasesPath, backupPath); } catch { /* no existing file to back up */ }
 
     // Atomic write: write to temp file, then rename
     fs.writeFileSync(tempPath, content, 'utf8');
@@ -113,38 +121,30 @@ function saveAliases(aliases) {
     // On Windows, rename fails with EEXIST if destination exists, so delete first.
     // On Unix/macOS, rename(2) atomically replaces the destination — skip the
     // delete to avoid an unnecessary non-atomic window between unlink and rename.
-    if (process.platform === 'win32' && fs.existsSync(aliasesPath)) {
-      fs.unlinkSync(aliasesPath);
+    if (process.platform === 'win32') {
+      try { fs.unlinkSync(aliasesPath); } catch { /* ENOENT is fine */ }
     }
     fs.renameSync(tempPath, aliasesPath);
 
-    // Remove backup on success
-    if (fs.existsSync(backupPath)) {
-      fs.unlinkSync(backupPath);
-    }
+    // Remove backup on success (best-effort)
+    try { fs.unlinkSync(backupPath); } catch { /* backup may not exist */ }
 
     return true;
   } catch (err) {
     log(`[Aliases] Error saving aliases: ${err.message}`);
 
     // Restore from backup if exists
-    if (fs.existsSync(backupPath)) {
-      try {
-        fs.copyFileSync(backupPath, aliasesPath);
-        log('[Aliases] Restored from backup');
-      } catch (restoreErr) {
+    try {
+      fs.copyFileSync(backupPath, aliasesPath);
+      log('[Aliases] Restored from backup');
+    } catch (restoreErr) {
+      if (restoreErr.code !== 'ENOENT') {
         log(`[Aliases] Failed to restore backup: ${restoreErr.message}`);
       }
     }
 
     // Clean up temp file (best-effort)
-    try {
-      if (fs.existsSync(tempPath)) {
-        fs.unlinkSync(tempPath);
-      }
-    } catch {
-      // Non-critical: temp file will be overwritten on next save
-    }
+    try { fs.unlinkSync(tempPath); } catch { /* Non-critical */ }
 
     return false;
   }
@@ -186,28 +186,12 @@ function resolveAlias(alias) {
  * @returns {object} Result with success status and message
  */
 function setAlias(alias, sessionPath, title = null) {
-  // Validate alias name
-  if (!alias || alias.length === 0) {
-    return { success: false, error: 'Alias name cannot be empty' };
-  }
+  const nameError = validateAliasName(alias);
+  if (nameError) return { success: false, error: nameError };
 
   // Validate session path
   if (!sessionPath || typeof sessionPath !== 'string' || sessionPath.trim().length === 0) {
     return { success: false, error: 'Session path cannot be empty' };
-  }
-
-  if (alias.length > 128) {
-    return { success: false, error: 'Alias name cannot exceed 128 characters' };
-  }
-
-  if (!/^[a-zA-Z0-9_-]+$/.test(alias)) {
-    return { success: false, error: 'Alias name must contain only letters, numbers, dashes, and underscores' };
-  }
-
-  // Reserved alias names
-  const reserved = ['list', 'help', 'remove', 'delete', 'create', 'set'];
-  if (reserved.includes(alias.toLowerCase())) {
-    return { success: false, error: `'${alias}' is a reserved alias name` };
   }
 
   const data = loadAliases();
@@ -254,7 +238,8 @@ function listAliases(options = {}) {
   }));
 
   // Sort by updated time (newest first)
-  aliases.sort((a, b) => (new Date(b.updatedAt || b.createdAt || 0).getTime() || 0) - (new Date(a.updatedAt || a.createdAt || 0).getTime() || 0));
+  const getTime = a => new Date(a.updatedAt || a.createdAt || 0).getTime() || 0;
+  aliases.sort((a, b) => getTime(b) - getTime(a));
 
   // Apply search filter
   if (search) {
@@ -312,23 +297,8 @@ function renameAlias(oldAlias, newAlias) {
     return { success: false, error: `Alias '${oldAlias}' not found` };
   }
 
-  // Validate new alias name (same rules as setAlias)
-  if (!newAlias || newAlias.length === 0) {
-    return { success: false, error: 'New alias name cannot be empty' };
-  }
-
-  if (newAlias.length > 128) {
-    return { success: false, error: 'New alias name cannot exceed 128 characters' };
-  }
-
-  if (!/^[a-zA-Z0-9_-]+$/.test(newAlias)) {
-    return { success: false, error: 'New alias name must contain only letters, numbers, dashes, and underscores' };
-  }
-
-  const reserved = ['list', 'help', 'remove', 'delete', 'create', 'set'];
-  if (reserved.includes(newAlias.toLowerCase())) {
-    return { success: false, error: `'${newAlias}' is a reserved alias name` };
-  }
+  const nameError = validateAliasName(newAlias);
+  if (nameError) return { success: false, error: nameError };
 
   if (data.aliases[newAlias]) {
     return { success: false, error: `Alias '${newAlias}' already exists` };
@@ -467,6 +437,7 @@ function cleanupAliases(sessionExists) {
 
 module.exports = {
   getAliasesPath,
+  validateAliasName,
   loadAliases,
   saveAliases,
   resolveAlias,
