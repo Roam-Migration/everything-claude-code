@@ -3,6 +3,13 @@ import axios, { AxiosInstance } from 'axios';
 export class MetabaseClient {
   private client: AxiosInstance;
 
+  private throwAxiosError(error: unknown): never {
+    if (axios.isAxiosError(error)) {
+      throw new Error(`Metabase API error: ${error.response?.data?.message || error.message}`);
+    }
+    throw error as Error;
+  }
+
   constructor(baseUrl: string, apiKey: string) {
     this.client = axios.create({
       baseURL: baseUrl,
@@ -46,10 +53,7 @@ export class MetabaseClient {
         total_tables: tables.length,
       };
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(`Metabase API error: ${error.response?.data?.message || error.message}`);
-      }
-      throw error;
+      this.throwAxiosError(error);
     }
   }
 
@@ -112,10 +116,7 @@ export class MetabaseClient {
         })),
       };
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(`Metabase API error: ${error.response?.data?.message || error.message}`);
-      }
-      throw error;
+      this.throwAxiosError(error);
     }
   }
 }

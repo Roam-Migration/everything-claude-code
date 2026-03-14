@@ -156,30 +156,24 @@ async function main() {
     }
   }
 
-  if (fs.existsSync(sessionFile)) {
-    // Update existing session file
-    const updated = replaceInFile(
-      sessionFile,
-      /\*\*Last Updated:\*\*.*/,
-      `**Last Updated:** ${currentTime}`
-    );
-    if (!updated) {
+  const existing = readFile(sessionFile);
+  if (existing !== null) {
+    // Modify in memory: update timestamp, optionally replace blank template — then write once
+    let content = existing.replace(/\*\*Last Updated:\*\*.*/, `**Last Updated:** ${currentTime}`);
+    if (content === existing) {
       log(`[SessionEnd] Failed to update timestamp in ${sessionFile}`);
     }
 
     // If we have a new summary and the file still has the blank template, replace it
-    if (summary) {
-      const existing = readFile(sessionFile);
-      if (existing && existing.includes('[Session context goes here]')) {
-        // Use a flexible regex that tolerates CRLF, extra whitespace, and minor template variations
-        const updatedContent = existing.replace(
-          /## Current State\s*\n\s*\[Session context goes here\][\s\S]*?### Context to Load\s*\n```\s*\n\[relevant files\]\s*\n```/,
-          buildSummarySection(summary)
-        );
-        writeFile(sessionFile, updatedContent);
-      }
+    if (summary && content.includes('[Session context goes here]')) {
+      // Use a flexible regex that tolerates CRLF, extra whitespace, and minor template variations
+      content = content.replace(
+        /## Current State\s*\n\s*\[Session context goes here\][\s\S]*?### Context to Load\s*\n```\s*\n\[relevant files\]\s*\n```/,
+        buildSummarySection(summary)
+      );
     }
 
+    writeFile(sessionFile, content);
     log(`[SessionEnd] Updated session file: ${sessionFile}`);
   } else {
     // Create new session file
