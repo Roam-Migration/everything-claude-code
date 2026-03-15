@@ -19,3 +19,4 @@ One line per session. Grep this file to find context on any topic.
 | 2026-03-14 | operations-project-map-hub | Operations section, Platform Map integration |
 | 2026-03-15 | admin-wiki-management | AdminWikiPage build, wiki settings JSONB, share button, Vite chunk invalidation, Supabase curl-only DDL |
 | 2026-03-14 | platform-project-map-sync-automation | Platform Map automation, sync triggers |
+| 2026-03-15 | document-hub-consolidation-planning | Document Hub 7-phase plan, Notion project creation, Legal Hub partial page identified |
