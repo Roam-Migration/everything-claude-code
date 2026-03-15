@@ -21,3 +21,4 @@ One line per session. Grep this file to find context on any topic.
 | 2026-03-15 | admin-wiki-management | AdminWikiPage build, wiki settings JSONB, share button, Vite chunk invalidation, Supabase curl-only DDL |
 | 2026-03-14 | platform-project-map-sync-automation | Platform Map automation, sync triggers |
 | 2026-03-15 | document-hub-consolidation-planning | Document Hub 7-phase plan, Notion project creation, Legal Hub partial page identified |
+| 2026-03-15 | document-hub-phase-0-1-2 | Phase 0 inventory (13 sources), Phase 1 mapping tables, Phase 2 tracking fields added to 8 DBs |
