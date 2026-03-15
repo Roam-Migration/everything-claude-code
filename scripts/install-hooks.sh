@@ -2,6 +2,10 @@
 # Merge ECC hooks/hooks.json into ~/.claude/settings.json
 # Activates: destructive command blocking, auto-format, TypeScript checks,
 # tmux enforcement, strategic compact suggestions, session state persistence.
+#
+# IMPORTANT: ${CLAUDE_PLUGIN_ROOT} in hooks.json is replaced with the actual
+# repo path during install. That variable is only set by Claude Code when hooks
+# are owned by an installed plugin — manually-merged hooks never get it.
 
 set -euo pipefail
 
@@ -16,18 +20,22 @@ fi
 
 mkdir -p "${HOME}/.claude"
 
+# Expand ${CLAUDE_PLUGIN_ROOT} to the actual repo path before merging.
+# Without this, the variable is empty in hook execution context and every
+# path becomes /scripts/hooks/... (absolute root), which doesn't exist.
+EXPANDED_HOOKS=$(sed "s|\${CLAUDE_PLUGIN_ROOT}|${REPO_ROOT}|g" "$HOOKS_SRC")
+
 if [ ! -f "$SETTINGS_FILE" ]; then
-  cp "$HOOKS_SRC" "$SETTINGS_FILE"
+  echo "$EXPANDED_HOOKS" > "$SETTINGS_FILE"
   echo "Created ${SETTINGS_FILE} from hooks template."
 else
-  HOOKS_SRC="$HOOKS_SRC" SETTINGS_FILE="$SETTINGS_FILE" python3 - <<'PYEOF'
+  EXPANDED_HOOKS="$EXPANDED_HOOKS" SETTINGS_FILE="$SETTINGS_FILE" python3 - <<'PYEOF'
 import json, os
 
-hooks_src = os.environ['HOOKS_SRC']
+expanded_hooks_json = os.environ['EXPANDED_HOOKS']
 settings_file = os.environ['SETTINGS_FILE']
 
-with open(hooks_src) as f:
-    template = json.load(f)
+template = json.loads(expanded_hooks_json)
 with open(settings_file) as f:
     existing = json.load(f)
 
