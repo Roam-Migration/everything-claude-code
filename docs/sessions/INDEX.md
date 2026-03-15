@@ -17,4 +17,5 @@ One line per session. Grep this file to find context on any topic.
 | 2026-03-14 | notion-driver-property-fix | Notion person property format, UUID quoting |
 | 2026-03-14 | notion-project-review-project-map | Project review, Platform Map sync |
 | 2026-03-14 | operations-project-map-hub | Operations section, Platform Map integration |
+| 2026-03-15 | admin-wiki-management | AdminWikiPage build, wiki settings JSONB, share button, Vite chunk invalidation, Supabase curl-only DDL |
 | 2026-03-14 | platform-project-map-sync-automation | Platform Map automation, sync triggers |
