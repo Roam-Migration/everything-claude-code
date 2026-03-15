@@ -13,6 +13,7 @@ One line per session. Grep this file to find context on any topic.
 | 2026-03-15 | doc-audit-spreadsheet-classification | DOC-AUDIT spreadsheet, classification system |
 | 2026-03-15 | close-session-command-fix | /close-session command installation, ~/.claude/commands/ |
 | 2026-03-15 | compass-wiki-completion | Compass wiki, documentation |
+| 2026-03-15 | platform-map-improvements | Platform Map section fix, Functional badge, section filter, filter counts, notes visibility, Stub/Planned split, Notion DB link, section inline edit |
 | 2026-03-14 | notion-driver-property-fix | Notion person property format, UUID quoting |
 | 2026-03-14 | notion-project-review-project-map | Project review, Platform Map sync |
 | 2026-03-14 | operations-project-map-hub | Operations section, Platform Map integration |
