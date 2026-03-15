@@ -4,6 +4,7 @@ One line per session. Grep this file to find context on any topic.
 
 | Date | Focus | Key topics |
 |------|-------|------------|
+| 2026-03-15 | gmail-plugin-phase1-build | Chrome MV3 extension, Vite+esbuild split, side panel, content script, background worker, manifest |
 | 2026-03-15 | ecc-framework-improvements | CLAUDE.md slim, rml/CLAUDE.md, install scripts, hooks CLAUDE_PLUGIN_ROOT bug fix, .cursor removed, sessions index |
 | 2026-03-15 | ecc-housekeeping-simplification | ECC audit, CLAUDE.md simplification, session closure improvements |
 | 2026-03-15 | notion-orphaned-tasks-triage | Notion orphaned tasks, project relation cleanup |
