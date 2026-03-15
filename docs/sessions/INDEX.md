@@ -8,6 +8,7 @@ One line per session. Grep this file to find context on any topic.
 | 2026-03-15 | ecc-housekeeping-simplification | ECC audit, CLAUDE.md simplification, session closure improvements |
 | 2026-03-15 | notion-orphaned-tasks-triage | Notion orphaned tasks, project relation cleanup |
 | 2026-03-15 | notion-projects-triage | Projects DB cleanup, status updates |
+| 2026-03-15 | legal-hub-compass-wiki-nav | Compass Wiki → Legal Hub sidebar, header nav label cleanup |
 | 2026-03-15 | doc-audit-spreadsheet-classification | DOC-AUDIT spreadsheet, classification system |
 | 2026-03-15 | close-session-command-fix | /close-session command installation, ~/.claude/commands/ |
 | 2026-03-15 | compass-wiki-completion | Compass wiki, documentation |
