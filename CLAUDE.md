@@ -72,7 +72,7 @@ Delegate to these agents for specialised tasks rather than handling inline.
 
 ```bash
 # One-time setup (run from repo root):
-node scripts/install-hooks.sh
+bash scripts/install-hooks.sh
 ```
 
 What activates:
@@ -91,7 +91,7 @@ Slash commands must be installed to `~/.claude/commands/` to be auto-discovered.
 
 ```bash
 # Install all commands (run from repo root):
-node scripts/install-commands.sh
+bash scripts/install-commands.sh
 ```
 
 Key commands: `build-fix`, `evolve`, `learn`, `code-review`, `checkpoint`, `instinct-status`
